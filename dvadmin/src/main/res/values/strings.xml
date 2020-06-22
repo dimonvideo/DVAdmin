@@ -10,4 +10,10 @@
     <string name="error_network_timeout">Error timeout, try again later</string>
     <string name="error_server">Server error, try again later!</string>
     <string name="error_network">Network error, try again later!</string>
+    <string name="refresh">Refresh</string>
+    <string name="visitors">Users</string>
+    <string name="tic">Yandex X</string>
+    <string name="space">Free space</string>
+    <string name="title">Site status</string>
+    <string name="devices">Devices</string>
 </resources>

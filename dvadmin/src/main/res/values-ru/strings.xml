@@ -11,4 +11,10 @@
     <string name="error_network_timeout">Error timeout, try again later</string>
     <string name="error_server">Server error, try again later!</string>
     <string name="error_network">Network error, try again later!</string>
+    <string name="refresh">Обновить</string>
+    <string name="visitors">Посетителей сегодня:</string>
+    <string name="tic">Yandex ИКС:</string>
+    <string name="space">Свободно:</string>
+    <string name="title">Статус сайта</string>
+    <string name="devices">Устройства</string>
 </resources>

@@ -1,5 +1,7 @@
 package dv.dimonvideo.dvadmin;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,12 +11,14 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -42,14 +46,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     MyRecyclerViewAdapter adapter;
-    String countUploader;
-    String countVuploader;
-    String countMuzon;
-    String countUsernews;
-    String countGallery;
-    String countForum;
+    SwipeRefreshLayout swipLayout;
+    String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace;
     String countUrl = "https://api.dimonvideo.ru/smart/dvadminapi.php?op=18";
 
     @Override
@@ -59,13 +59,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(true);
+        swipLayout = this.findViewById(R.id.swipe_layout);
+        swipLayout.setOnRefreshListener(this);
 
         set_adapter();
-
-
-
-
-
     }
 
 
@@ -78,7 +75,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         count.add(countMuzon);
         count.add(countUsernews);
         count.add(countGallery);
+        count.add(countDevices);
         count.add(countForum);
+        count.add(countSpace);
+        count.add(countVisitors);
+        count.add(countTic);
 
         final ArrayList<String> Names = new ArrayList<>();
         Names.add(getString(R.string.uploader));
@@ -86,7 +87,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Names.add(getString(R.string.muzon));
         Names.add(getString(R.string.usernews));
         Names.add(getString(R.string.gallery));
+        Names.add(getString(R.string.devices));
         Names.add(getString(R.string.forum));
+        Names.add(getString(R.string.space));
+        Names.add(getString(R.string.visitors));
+        Names.add(getString(R.string.tic));
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
@@ -101,7 +106,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                             countMuzon = jsonObject.getString("muzon");
                             countUsernews = jsonObject.getString("usernews");
                             countGallery = jsonObject.getString("gallery");
+                            countDevices = jsonObject.getString("devices");
                             countForum = jsonObject.getString("forum");
+                            countSpace = jsonObject.getString("space");
+                            countTic = jsonObject.getString("tic");
+                            countVisitors = jsonObject.getString("visitors");
 
                             count.clear();
                             count.add(countUploader);
@@ -109,7 +118,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                             count.add(countMuzon);
                             count.add(countUsernews);
                             count.add(countGallery);
+                            count.add(countDevices);
                             count.add(countForum);
+                            count.add(countSpace);
+                            count.add(countVisitors);
+                            count.add(countTic);
 
                             RecyclerView recyclerView = findViewById(R.id.rv);
                             recyclerView.setHasFixedSize(true);
@@ -150,28 +163,79 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_scrolling, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+        if (id == R.id.action_refresh) {
+            recreate();
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+
+        if (position == 0){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/logs/uploader/0"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (position == 1){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/logs/vuploader/0"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (position == 2){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/logs/muzon/0"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (position == 3){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/logs/usernews/0"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (position == 4){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/logs/gallery/0"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (position == 5){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/logs/device/0"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (position == 6){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/fadmin"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        }
+
+        Toast.makeText(this, adapter.getItem(position), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -202,6 +266,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             return true;
         }
         return super.onKeyLongPress(keycode, event);
+    }
+
+    @Override
+    public void onRefresh() {
+        recreate();
     }
 
 }
