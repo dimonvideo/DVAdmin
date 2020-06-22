@@ -2,23 +2,16 @@ package dv.dimonvideo.dvadmin;
 
 import android.os.Bundle;
 
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -26,6 +19,12 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
     MyRecyclerViewAdapter adapter;
+    int countUploader = 0;
+    int countVuploader = 0;
+    int countMuzon = 0;
+    int countUsernews = 0;
+    int countGallery = 0;
+    int countForum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +35,25 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(true);
 
         ArrayList<String> Names = new ArrayList<>();
-        Names.add("Horse");
-        Names.add("Cow");
-        Names.add("Camel");
-        Names.add("Sheep");
-        Names.add("Goat");
-        Names.add("0");
+        Names.add(getString(R.string.uploader));
+        Names.add(getString(R.string.vuploader));
+        Names.add(getString(R.string.muzon));
+        Names.add(getString(R.string.usernews));
+        Names.add(getString(R.string.gallery));
+        Names.add(getString(R.string.forum));
+
+        ArrayList<String> count = new ArrayList<>();
+        count.add(String.valueOf(countUploader));
+        count.add(String.valueOf(countVuploader));
+        count.add(String.valueOf(countMuzon));
+        count.add(String.valueOf(countUsernews));
+        count.add(String.valueOf(countGallery));
+        count.add(String.valueOf(countForum));
 
         RecyclerView recyclerView = findViewById(R.id.rv);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MyRecyclerViewAdapter(this, Names);
+        adapter = new MyRecyclerViewAdapter(this, Names, count);
         adapter.setClickListener(this);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
         dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(MainActivity.this, R.drawable.divider)));

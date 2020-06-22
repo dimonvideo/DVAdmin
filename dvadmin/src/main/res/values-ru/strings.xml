@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DVAdmin</string>
+    <string name="action_settings">Настройки</string>
+    <string name="uploader">Ожидающие в Обменннике:</string>
+    <string name="vuploader">Ожидающие в Видео:</string>
+    <string name="muzon">Ожидающие в Музыке:</string>
+    <string name="usernews">Ожидающие в Новостях:</string>
+    <string name="gallery">Ожидающие в Картинках:</string>
+    <string name="forum">Ожидающие темы форума:</string>
+</resources>

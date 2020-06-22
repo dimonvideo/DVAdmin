@@ -1,6 +1,6 @@
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="40dp"
-    android:insetRight="40dp" >
+    android:insetLeft="10dp"
+    android:insetRight="10dp" >
 
     <shape>
         <size android:height="1dp"/>
