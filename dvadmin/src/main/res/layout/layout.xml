@@ -34,6 +34,7 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="?attr/actionBarSize" />
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv"
             android:layout_width="match_parent"

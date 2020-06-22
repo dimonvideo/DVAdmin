@@ -7,4 +7,7 @@
     <string name="usernews">Usernews</string>
     <string name="gallery">Gallery</string>
     <string name="forum">Forum</string>
+    <string name="error_network_timeout">Error timeout, try again later</string>
+    <string name="error_server">Server error, try again later!</string>
+    <string name="error_network">Network error, try again later!</string>
 </resources>
