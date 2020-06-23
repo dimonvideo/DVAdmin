@@ -1,0 +1,62 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/razdel_header">
+
+        <SwitchPreferenceCompat
+            app:key="uploader"
+            app:defaultValue="true"
+            app:title="@string/uploader" />
+        <SwitchPreferenceCompat
+            app:key="vuploader"
+            app:defaultValue="true"
+            app:title="@string/vuploader" />
+        <SwitchPreferenceCompat
+        app:key="muzon"
+        app:defaultValue="true"
+        app:title="@string/muzon" />
+        <SwitchPreferenceCompat
+        app:key="usernews"
+        app:defaultValue="true"
+        app:title="@string/usernews" />
+        <SwitchPreferenceCompat
+        app:key="gallery"
+        app:defaultValue="true"
+        app:title="@string/gallery" />
+        <SwitchPreferenceCompat
+        app:key="devices"
+        app:defaultValue="true"
+        app:title="@string/devices" />
+        <SwitchPreferenceCompat
+        app:key="forum"
+        app:defaultValue="true"
+        app:title="@string/forum" />
+        <SwitchPreferenceCompat
+        app:key="abuse_file"
+        app:defaultValue="true"
+        app:title="@string/abuse_file" />
+        <SwitchPreferenceCompat
+        app:key="abuse_forum"
+        app:defaultValue="true"
+        app:title="@string/abuse_forum" />
+        <SwitchPreferenceCompat
+        app:key="space"
+        app:defaultValue="true"
+        app:title="@string/space" />
+        <SwitchPreferenceCompat
+        app:key="visitors"
+        app:defaultValue="true"
+        app:title="@string/visitors" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/sync_header">
+
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:defaultValue="true"
+            app:title="@string/sync_title" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

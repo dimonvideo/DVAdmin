@@ -1,13 +1,18 @@
 package dv.dimonvideo.dvadmin;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +23,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +43,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +61,7 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     MyRecyclerViewAdapter adapter;
     SwipeRefreshLayout swipLayout;
-    String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace;
+    String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum;
     String countUrl = "https://api.dimonvideo.ru/smart/dvadminapi.php?op=18";
 
     @Override
@@ -69,28 +81,34 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     // получение данных
     private void set_adapter(){
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final boolean is_uploader = sharedPrefs.getBoolean("uploader",true);
+        final boolean is_vuploader = sharedPrefs.getBoolean("vuploader",true);
+        final boolean is_muzon = sharedPrefs.getBoolean("muzon",true);
+        final boolean is_usernews = sharedPrefs.getBoolean("usernews",true);
+        final boolean is_gallery = sharedPrefs.getBoolean("gallery",true);
+        final boolean is_devices = sharedPrefs.getBoolean("devices",true);
+        final boolean is_forum = sharedPrefs.getBoolean("forum",true);
+        final boolean is_abuse_file = sharedPrefs.getBoolean("abuse_file",true);
+        final boolean is_abuse_forum = sharedPrefs.getBoolean("abuse_forum",true);
+        final boolean is_space = sharedPrefs.getBoolean("space",true);
+        final boolean is_visitors = sharedPrefs.getBoolean("visitors",true);
+        final boolean is_notify = sharedPrefs.getBoolean("sync",true);
+
         final ArrayList<String> count = new ArrayList<>();
-        count.add(countUploader);
-        count.add(countVuploader);
-        count.add(countMuzon);
-        count.add(countUsernews);
-        count.add(countGallery);
-        count.add(countDevices);
-        count.add(countForum);
-        count.add(countSpace);
-        count.add(countVisitors);
-        count.add(countTic);
 
         final ArrayList<String> Names = new ArrayList<>();
-        Names.add(getString(R.string.uploader));
-        Names.add(getString(R.string.vuploader));
-        Names.add(getString(R.string.muzon));
-        Names.add(getString(R.string.usernews));
-        Names.add(getString(R.string.gallery));
-        Names.add(getString(R.string.devices));
-        Names.add(getString(R.string.forum));
-        Names.add(getString(R.string.space));
-        Names.add(getString(R.string.visitors));
+        if (is_uploader) Names.add(getString(R.string.uploader));
+        if (is_vuploader) Names.add(getString(R.string.vuploader));
+        if (is_muzon) Names.add(getString(R.string.muzon));
+        if (is_usernews) Names.add(getString(R.string.usernews));
+        if (is_gallery) Names.add(getString(R.string.gallery));
+        if (is_devices) Names.add(getString(R.string.devices));
+        if (is_forum) Names.add(getString(R.string.forum));
+        if (is_abuse_file) Names.add(getString(R.string.abuse_file));
+        if (is_abuse_forum) Names.add(getString(R.string.abuse_forum));
+        if (is_space) Names.add(getString(R.string.space));
+        if (is_visitors) Names.add(getString(R.string.visitors));
         Names.add(getString(R.string.tic));
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -108,20 +126,24 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                             countGallery = jsonObject.getString("gallery");
                             countDevices = jsonObject.getString("devices");
                             countForum = jsonObject.getString("forum");
+                            countAfile = jsonObject.getString("abuse_file");
+                            countAforum = jsonObject.getString("abuse_forum");
                             countSpace = jsonObject.getString("space");
                             countTic = jsonObject.getString("tic");
                             countVisitors = jsonObject.getString("visitors");
 
                             count.clear();
-                            count.add(countUploader);
-                            count.add(countVuploader);
-                            count.add(countMuzon);
-                            count.add(countUsernews);
-                            count.add(countGallery);
-                            count.add(countDevices);
-                            count.add(countForum);
-                            count.add(countSpace);
-                            count.add(countVisitors);
+                            if (is_uploader) count.add(countUploader);
+                            if (is_vuploader) count.add(countVuploader);
+                            if (is_muzon) count.add(countMuzon);
+                            if (is_usernews) count.add(countUsernews);
+                            if (is_gallery) count.add(countGallery);
+                            if (is_devices) count.add(countDevices);
+                            if (is_forum) count.add(countForum);
+                            if (is_abuse_file) count.add(countAfile);
+                            if (is_abuse_forum) count.add(countAforum);
+                            if (is_space) count.add(countSpace);
+                            if (is_visitors) count.add(countVisitors);
                             count.add(countTic);
 
                             RecyclerView recyclerView = findViewById(R.id.rv);
@@ -134,6 +156,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                             adapter.setClickListener(MainActivity.this);
                             recyclerView.setAdapter(adapter);
 
+                            try {
+                                FirebaseOptions options = new FirebaseOptions.Builder()
+                                        .setApplicationId("1:50549051988:android:a46a6e539a88fde4e7d3c1") // Required for Analytics.
+                                        .setProjectId("dvadmin-5a6d2") // Required for Firebase Installations.
+                                        .build();
+                                FirebaseApp.initializeApp(MainActivity.this, options, "DVAdmin");
+
+                                if (is_notify) {
+                                    FirebaseMessaging.getInstance().subscribeToTopic("all");
+                                } else FirebaseMessaging.getInstance().unsubscribeFromTopic("all");
+                            } catch (Throwable ignored) {
+                            }
 
 
                         } catch (JSONException e) {
@@ -172,11 +206,67 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         int id = item.getItemId();
 
+        // settings
         if (id == R.id.action_settings) {
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivityForResult(i, 1);
             return true;
         }
+        // refresh
         if (id == R.id.action_refresh) {
             recreate();
+        }
+        // birthdays
+        if (id == R.id.action_bd) {
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getString(R.string.action_bd));
+
+            WebView wv = new WebView(this);
+            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=9");
+            wv.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+
+                    return true;
+                }
+            });
+
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+        }
+        // who added files now
+        if (id == R.id.action_whoaddedfiles) {
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getString(R.string.action_whoaddedfiles));
+
+            WebView wv = new WebView(this);
+            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=12");
+            wv.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+
+                    return true;
+                }
+            });
+
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -184,51 +274,65 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public void onItemClick(View view, int position) {
 
-        if (position == 0){
+        if (adapter.getItem(position).equals(getString(R.string.uploader))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/logs/uploader/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
-        } else if (position == 1){
+        } else if (adapter.getItem(position).equals(getString(R.string.vuploader))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/logs/vuploader/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
-        } else if (position == 2){
+        } else if (adapter.getItem(position).equals(getString(R.string.muzon))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/logs/muzon/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
-        } else if (position == 3){
+        } else if (adapter.getItem(position).equals(getString(R.string.usernews))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/logs/usernews/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
-        } else if (position == 4){
+        } else if (adapter.getItem(position).equals(getString(R.string.gallery))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/logs/gallery/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
-        } else if (position == 5){
+        } else if (adapter.getItem(position).equals(getString(R.string.devices))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/logs/device/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
-        } else if (position == 6){
+        } else if (adapter.getItem(position).equals(getString(R.string.forum))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     "https://dimonvideo.ru/fadmin"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/forum/topic_1728146352"));
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://dimonvideo.ru/forum/topic_1728146368"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {

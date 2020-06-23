@@ -17,4 +17,12 @@
     <string name="space">Свободно:</string>
     <string name="title">Статус сайта</string>
     <string name="devices">Устройства</string>
+    <string name="abuse_file">Жалобы на файлы:</string>
+    <string name="abuse_forum">Жалобы на форум:</string>
+    <string name="action_bd">Дни рождения команды</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_whoaddedfiles">Кто добавляет файлы</string>
+    <string name="razdel_header">Выбор разделов</string>
+    <string name="sync_header">Уведомления</string>
+    <string name="sync_title">Получать уведомления об ожидающих файлах</string>
 </resources>

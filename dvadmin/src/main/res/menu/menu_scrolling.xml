@@ -4,13 +4,23 @@
     tools:context="dv.dimonvideo.dvadmin.MainActivity">
     <item
         android:id="@+id/action_refresh"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         android:title="@string/refresh"
         android:icon="@android:drawable/ic_popup_sync"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="2"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_bd"
+        android:orderInCategory="3"
+        android:title="@string/action_bd"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_whoaddedfiles"
+        android:orderInCategory="4"
+        android:title="@string/action_whoaddedfiles"
         app:showAsAction="never" />
 </menu>

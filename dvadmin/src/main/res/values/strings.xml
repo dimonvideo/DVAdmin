@@ -16,4 +16,12 @@
     <string name="space">Free space</string>
     <string name="title">Site status</string>
     <string name="devices">Devices</string>
+    <string name="abuse_file">Abuse files</string>
+    <string name="abuse_forum">Abuse forum</string>
+    <string name="action_bd">Birthdays</string>
+    <string name="action_close">Close</string>
+    <string name="action_whoaddedfiles">Who adding files</string>
+    <string name="razdel_header">Chapters</string>
+    <string name="sync_header">Sync</string>
+    <string name="sync_title">Sync email periodically</string>
 </resources>
