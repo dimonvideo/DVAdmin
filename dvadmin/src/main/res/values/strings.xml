@@ -24,4 +24,11 @@
     <string name="razdel_header">Chapters</string>
     <string name="sync_header">Sync</string>
     <string name="sync_title">Sync email periodically</string>
+    <string name="action_lastbans">Bans</string>
+    <string name="action_lastdel">Deletions</string>
+    <string name="action_lasttopics">Deleted topics</string>
+    <string name="action_lastcom">Deleted comments</string>
+    <string name="action_others">Others apps</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="app_mail">admin@dimonvideo.ru</string>
 </resources>

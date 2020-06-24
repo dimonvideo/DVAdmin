@@ -16,7 +16,7 @@
     <string name="tic">Yandex ИКС:</string>
     <string name="space">Свободно:</string>
     <string name="title">Статус сайта</string>
-    <string name="devices">Устройства</string>
+    <string name="devices">Устройства:</string>
     <string name="abuse_file">Жалобы на файлы:</string>
     <string name="abuse_forum">Жалобы на форум:</string>
     <string name="action_bd">Дни рождения команды</string>
@@ -25,4 +25,11 @@
     <string name="razdel_header">Выбор разделов</string>
     <string name="sync_header">Уведомления</string>
     <string name="sync_title">Получать уведомления об ожидающих файлах</string>
+    <string name="action_lastbans">История наказаний</string>
+    <string name="action_lastdel">Удаленные файлы Обменника</string>
+    <string name="action_lasttopics">Удаленные темы на Форуме</string>
+    <string name="action_lastcom">Удаленные комментарии</string>
+    <string name="action_others">Другие программы</string>
+    <string name="action_feedback">Написать админу сайта</string>
+    <string name="app_mail">admin@dimonvideo.ru</string>
 </resources>

@@ -23,4 +23,34 @@
         android:orderInCategory="4"
         android:title="@string/action_whoaddedfiles"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_lastban"
+        android:orderInCategory="5"
+        android:title="@string/action_lastbans"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_lastdel"
+        android:orderInCategory="6"
+        android:title="@string/action_lastdel"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_lasttopics"
+        android:orderInCategory="7"
+        android:title="@string/action_lasttopics"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_lastcom"
+        android:orderInCategory="8"
+        android:title="@string/action_lastcom"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_others"
+        android:orderInCategory="9"
+        android:title="@string/action_others"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_feedback"
+        android:orderInCategory="9"
+        android:title="@string/action_feedback"
+        app:showAsAction="never" />
 </menu>

@@ -4,10 +4,13 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -114,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
                 new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(String response) {
                         try {
@@ -267,6 +271,146 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 }
             });
             alert.show();
+        }
+        // last ban
+        if (id == R.id.action_lastban) {
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getString(R.string.action_lastbans));
+
+            WebView wv = new WebView(this);
+
+            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=14");
+            wv.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+
+                    return true;
+                }
+            });
+
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+
+        }
+        // last del uploader
+        if (id == R.id.action_lastdel) {
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getString(R.string.action_lastdel));
+
+            WebView wv = new WebView(this);
+
+            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=15");
+            wv.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+
+                    return true;
+                }
+            });
+
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+
+        }
+        // last del forum
+        if (id == R.id.action_lasttopics) {
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getString(R.string.action_lasttopics));
+
+            WebView wv = new WebView(this);
+
+            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=11");
+            wv.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+
+                    return true;
+                }
+            });
+
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+
+        }
+        // last del com
+        if (id == R.id.action_lastcom) {
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getString(R.string.action_lastcom));
+
+            WebView wv = new WebView(this);
+
+            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=13");
+            wv.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+
+                    return true;
+                }
+            });
+
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+
+        }
+        // other apps
+        if (id == R.id.action_others) {
+
+            String url = "https://play.google.com/store/apps/dev?id=6091758746633814135";
+
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    url));
+
+
+
+            try {
+                startActivity(browserIntent);
+            } catch (Throwable ignored) {
+            }
+        }
+        // feedback
+        if (id == R.id.action_feedback) {
+
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.fromParts("mailto", getString(R.string.app_mail), null));
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " Feedback");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            try {
+                startActivity(intent);
+            } catch (Throwable ignored) {
+            }
         }
         return super.onOptionsItemSelected(item);
     }
