@@ -25,6 +25,8 @@ android {
         DVAdminPro {
             dimension = 'dimonvideo'
             buildConfigField "boolean", "FREE", "false"
+            versionCode 145
+
         }
         DVAdmin {
             dimension = 'dimonvideo'
