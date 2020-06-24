@@ -1,15 +1,19 @@
 package dv.dimonvideo.dvadmin;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,16 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
@@ -41,30 +35,22 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     MyRecyclerViewAdapter adapter;
     SwipeRefreshLayout swipLayout;
-    String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum;
+    String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
     String countUrl = "https://api.dimonvideo.ru/smart/dvadminapi.php?op=18";
 
     @Override
@@ -101,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         final ArrayList<String> count = new ArrayList<>();
 
         final ArrayList<String> Names = new ArrayList<>();
+        if (BuildConfig.FLAVOR.equals("DVAdminPro")) Names.add(getString(R.string.today));
         if (is_uploader) Names.add(getString(R.string.uploader));
         if (is_vuploader) Names.add(getString(R.string.vuploader));
         if (is_muzon) Names.add(getString(R.string.muzon));
@@ -135,8 +122,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                             countSpace = jsonObject.getString("space");
                             countTic = jsonObject.getString("tic");
                             countVisitors = jsonObject.getString("visitors");
+                            today = jsonObject.getString("today");
 
                             count.clear();
+                            if (BuildConfig.FLAVOR.equals("DVAdminPro")) count.add(today);
                             if (is_uploader) count.add(countUploader);
                             if (is_vuploader) count.add(countVuploader);
                             if (is_muzon) count.add(countMuzon);

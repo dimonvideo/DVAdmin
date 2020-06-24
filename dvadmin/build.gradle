@@ -17,7 +17,18 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
+        }
+    }
+    flavorDimensions 'dimonvideo'
+    productFlavors {
+        DVAdminPro {
+            dimension = 'dimonvideo'
+            buildConfigField "boolean", "FREE", "false"
+        }
+        DVAdmin {
+            dimension = 'dimonvideo'
+            buildConfigField "boolean", "FREE", "true"
         }
     }
 }

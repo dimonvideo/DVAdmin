@@ -31,4 +31,5 @@
     <string name="action_others">Others apps</string>
     <string name="action_feedback">Feedback</string>
     <string name="app_mail">admin@dimonvideo.ru</string>
+    <string name="today">Today</string>
 </resources>
