@@ -1,5 +1,6 @@
 package dv.dimonvideo.dvadmin;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         if (is_space) Names.add(getString(R.string.space));
         if (is_visitors) Names.add(getString(R.string.visitors));
         Names.add(getString(R.string.tic));
+        final ProgressDialog pd = ProgressDialog.show(this,null,getString(R.string.please_wait));
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
@@ -162,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                             } catch (Throwable ignored) {
                             }
 
+                            if(pd!=null && pd.isShowing()) pd.dismiss();
 
                         } catch (JSONException e) {
                             Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
@@ -171,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                if(pd!=null && pd.isShowing()) pd.dismiss();
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
                     Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
                 } else if (error instanceof AuthFailureError) {

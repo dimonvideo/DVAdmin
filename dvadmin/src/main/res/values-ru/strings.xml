@@ -33,4 +33,5 @@
     <string name="action_feedback">Написать админу сайта</string>
     <string name="app_mail">admin@dimonvideo.ru</string>
     <string name="today">Сегодня:</string>
+    <string name="please_wait">Пожалуйста подождите</string>
 </resources>
