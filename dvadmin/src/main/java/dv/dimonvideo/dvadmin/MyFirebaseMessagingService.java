@@ -22,7 +22,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.d("DVPIC", "Refreshed token: " + token);
 
     }
 
