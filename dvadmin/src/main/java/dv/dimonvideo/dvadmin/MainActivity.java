@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             ShortcutInfo logUploaderShortcut = new ShortcutInfo.Builder(this, "shortcut_visit_1")
                     .setShortLabel(getString(R.string.action_admin_upl))
                     .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
-                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(adminUrl)))
+                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(uplUrl)))
                     .build();
 
             ShortcutInfo logShortcut = new ShortcutInfo.Builder(this, "shortcut_visit")
