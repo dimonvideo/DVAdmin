@@ -34,4 +34,6 @@
     <string name="app_mail">admin@dimonvideo.ru</string>
     <string name="today">Сегодня:</string>
     <string name="please_wait">Пожалуйста подождите</string>
+    <string name="action_admin">Админка</string>
+    <string name="action_admin_upl">В Обменнике</string>
 </resources>

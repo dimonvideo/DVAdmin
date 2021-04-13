@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +51,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -55,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     SwipeRefreshLayout swipLayout;
     String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
     String countUrl = "https://api.dimonvideo.ru/smart/dvadminapi.php?op=18";
+    String adminUrl = "https://dimonvideo.ru/logs";
+    String uplUrl = "https://dimonvideo.ru/logs/uploader/0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,30 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
         set_adapter();
+
+        // shortcuts
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+            ShortcutInfo logUploaderShortcut = new ShortcutInfo.Builder(this, "shortcut_visit_1")
+                    .setShortLabel(getString(R.string.action_admin_upl))
+                    .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
+                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(adminUrl)))
+                    .build();
+
+            ShortcutInfo logShortcut = new ShortcutInfo.Builder(this, "shortcut_visit")
+                    .setShortLabel(getString(R.string.action_admin))
+                    .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
+                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(adminUrl)))
+                    .build();
+
+            assert shortcutManager != null;
+
+                shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut));
+
+        }
+
+
     }
 
 
