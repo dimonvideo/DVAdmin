@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     MyRecyclerViewAdapter adapter;
     SwipeRefreshLayout swipLayout;
     String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
-    String countUrl = "https://api.dimonvideo.ru/smart/dvadminapi.php?op=18";
+    String hostUrl = "https://dimonvideo.net";
+    String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
     String adminUrl = "https://dimonvideo.ru/logs";
     String uplUrl = "https://dimonvideo.ru/logs/uploader/0";
 
@@ -253,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             alert.setTitle(getString(R.string.action_bd));
 
             WebView wv = new WebView(this);
-            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=9");
+            wv.loadUrl(hostUrl + "/smart/dvadminapi.php?op=9");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -279,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             alert.setTitle(getString(R.string.action_whoaddedfiles));
 
             WebView wv = new WebView(this);
-            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=12");
+            wv.loadUrl(hostUrl + "/smart/dvadminapi.php?op=12");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=14");
+            wv.loadUrl(hostUrl + "/smart/dvadminapi.php?op=14");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -334,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=15");
+            wv.loadUrl(hostUrl + "/smart/dvadminapi.php?op=15");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -362,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=11");
+            wv.loadUrl(hostUrl + "/smart/dvadminapi.php?op=11");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -390,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl("https://api.dimonvideo.ru/smart/dvadminapi.php?op=13");
+            wv.loadUrl(hostUrl + "/smart/dvadminapi.php?op=13");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -401,12 +402,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             });
 
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id1) -> dialog.dismiss());
             alert.show();
 
         }
