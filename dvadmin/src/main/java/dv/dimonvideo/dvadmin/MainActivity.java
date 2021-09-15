@@ -12,6 +12,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     MyRecyclerViewAdapter adapter;
     SwipeRefreshLayout swipLayout;
     String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
-    String hostUrl = "https://dimonvideo.net";
+    String hostUrl = "https://api.dimonvideo.net";
     String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
     String adminUrl = "https://dimonvideo.ru/logs";
     String uplUrl = "https://dimonvideo.ru/logs/uploader/0";
@@ -139,89 +141,89 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
-                new Response.Listener<String>() {
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                    @Override
-                    public void onResponse(String response) {
+                response -> {
+                    try {
+
+                        JSONObject jsonObject;
+                        jsonObject = new JSONObject(response);
+
+                        countUploader = jsonObject.getString("uploader");
+                        countVuploader = jsonObject.getString("vuploader");
+                        countMuzon = jsonObject.getString("muzon");
+                        countUsernews = jsonObject.getString("usernews");
+                        countGallery = jsonObject.getString("gallery");
+                        countDevices = jsonObject.getString("devices");
+                        countForum = jsonObject.getString("forum");
+                        countAfile = jsonObject.getString("abuse_file");
+                        countAforum = jsonObject.getString("abuse_forum");
+                        countSpace = jsonObject.getString("space");
+                        countTic = jsonObject.getString("tic");
+                        countVisitors = jsonObject.getString("visitors");
+                        today = jsonObject.getString("today");
+
+                        count.clear();
+                        if (BuildConfig.FLAVOR.equals("DVAdminPro")) count.add(today);
+                        if (is_uploader) count.add(countUploader);
+                        if (is_vuploader) count.add(countVuploader);
+                        if (is_muzon) count.add(countMuzon);
+                        if (is_usernews) count.add(countUsernews);
+                        if (is_gallery) count.add(countGallery);
+                        if (is_devices) count.add(countDevices);
+                        if (is_forum) count.add(countForum);
+                        if (is_abuse_file) count.add(countAfile);
+                        if (is_abuse_forum) count.add(countAforum);
+                        if (is_space) count.add(countSpace);
+                        if (is_visitors) count.add(countVisitors);
+                        count.add(countTic);
+
+                        RecyclerView recyclerView = findViewById(R.id.rv);
+                        recyclerView.setHasFixedSize(true);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+                        dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(MainActivity.this, R.drawable.divider)));
+                        recyclerView.addItemDecoration(dividerItemDecoration);
+                        adapter = new MyRecyclerViewAdapter(getApplicationContext(), Names, count);
+                        adapter.setClickListener(MainActivity.this);
+                        recyclerView.setAdapter(adapter);
+
                         try {
-                            JSONObject jsonObject = new JSONObject(response);
+                            FirebaseOptions options = new FirebaseOptions.Builder()
+                                    .setApplicationId("1:50549051988:android:a46a6e539a88fde4e7d3c1") // Required for Analytics.
+                                    .setProjectId("dvadmin-5a6d2") // Required for Firebase Installations.
+                                    .build();
+                            FirebaseApp.initializeApp(MainActivity.this, options, "DVAdmin");
 
-                            countUploader = jsonObject.getString("uploader");
-                            countVuploader = jsonObject.getString("vuploader");
-                            countMuzon = jsonObject.getString("muzon");
-                            countUsernews = jsonObject.getString("usernews");
-                            countGallery = jsonObject.getString("gallery");
-                            countDevices = jsonObject.getString("devices");
-                            countForum = jsonObject.getString("forum");
-                            countAfile = jsonObject.getString("abuse_file");
-                            countAforum = jsonObject.getString("abuse_forum");
-                            countSpace = jsonObject.getString("space");
-                            countTic = jsonObject.getString("tic");
-                            countVisitors = jsonObject.getString("visitors");
-                            today = jsonObject.getString("today");
-
-                            count.clear();
-                            if (BuildConfig.FLAVOR.equals("DVAdminPro")) count.add(today);
-                            if (is_uploader) count.add(countUploader);
-                            if (is_vuploader) count.add(countVuploader);
-                            if (is_muzon) count.add(countMuzon);
-                            if (is_usernews) count.add(countUsernews);
-                            if (is_gallery) count.add(countGallery);
-                            if (is_devices) count.add(countDevices);
-                            if (is_forum) count.add(countForum);
-                            if (is_abuse_file) count.add(countAfile);
-                            if (is_abuse_forum) count.add(countAforum);
-                            if (is_space) count.add(countSpace);
-                            if (is_visitors) count.add(countVisitors);
-                            count.add(countTic);
-
-                            RecyclerView recyclerView = findViewById(R.id.rv);
-                            recyclerView.setHasFixedSize(true);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-                            dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(MainActivity.this, R.drawable.divider)));
-                            recyclerView.addItemDecoration(dividerItemDecoration);
-                            adapter = new MyRecyclerViewAdapter(getApplicationContext(), Names, count);
-                            adapter.setClickListener(MainActivity.this);
-                            recyclerView.setAdapter(adapter);
-
-                            try {
-                                FirebaseOptions options = new FirebaseOptions.Builder()
-                                        .setApplicationId("1:50549051988:android:a46a6e539a88fde4e7d3c1") // Required for Analytics.
-                                        .setProjectId("dvadmin-5a6d2") // Required for Firebase Installations.
-                                        .build();
-                                FirebaseApp.initializeApp(MainActivity.this, options, "DVAdmin");
-
-                                if (is_notify) {
-                                    FirebaseMessaging.getInstance().subscribeToTopic("all");
-                                } else FirebaseMessaging.getInstance().unsubscribeFromTopic("all");
-                            } catch (Throwable ignored) {
-                            }
-
-                            if(pd!=null && pd.isShowing()) pd.dismiss();
-
-                        } catch (JSONException e) {
-                            Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+                            if (is_notify) {
+                                FirebaseMessaging.getInstance().subscribeToTopic("all");
+                            } else FirebaseMessaging.getInstance().unsubscribeFromTopic("all");
+                        } catch (Throwable ignored) {
                         }
 
+                        if(pd!=null && pd.isShowing()) pd.dismiss();
+
+                    } catch (JSONException e) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if(pd!=null && pd.isShowing()) pd.dismiss();
-                if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-                } else if (error instanceof AuthFailureError) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-                } else if (error instanceof ServerError) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
-                } else if (error instanceof NetworkError) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_network), Toast.LENGTH_LONG).show();
-                } else if (error instanceof ParseError) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+
+                }, error -> {
+                    if(pd!=null && pd.isShowing()) pd.dismiss();
+
+            Log.e("RESULTfailder",error.getMessage());
+
+
+        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+                    } else if (error instanceof AuthFailureError) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+                    } else if (error instanceof ServerError) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
+                    } else if (error instanceof NetworkError) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_network), Toast.LENGTH_LONG).show();
+                    } else if (error instanceof ParseError) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
+                    }
+                });
+
         queue.add(stringRequest);
 
     }
