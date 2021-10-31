@@ -6,9 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,8 +17,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -36,16 +31,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.FirebaseApp;
@@ -83,9 +75,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         // shortcuts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-
-
-
 
             ShortcutManagerCompat shortcutManager = getSystemService(ShortcutManagerCompat.class);
 
@@ -214,9 +203,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 }, error -> {
                     if(pd!=null && pd.isShowing()) pd.dismiss();
 
-            Log.e("RESULTfailder",error.getMessage());
-
-
         if (error instanceof TimeoutError || error instanceof NoConnectionError) {
                         Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
                     } else if (error instanceof AuthFailureError) {
@@ -248,7 +234,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         // settings
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivityForResult(i, 1);
+
+            startActivity(i);
+
             return true;
         }
         // refresh
