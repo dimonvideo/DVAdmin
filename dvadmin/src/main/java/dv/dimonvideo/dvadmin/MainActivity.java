@@ -26,6 +26,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -80,23 +83,26 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         // shortcuts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
 
-            ShortcutInfo logUploaderShortcut = new ShortcutInfo.Builder(this, "shortcut_visit_1")
+
+
+
+            ShortcutManagerCompat shortcutManager = getSystemService(ShortcutManagerCompat.class);
+
+            ShortcutInfoCompat logUploaderShortcut = new ShortcutInfoCompat.Builder(this, "shortcut_visit_1")
                     .setShortLabel(getString(R.string.action_admin_upl))
-                    .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
+                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_launcher))
                     .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(uplUrl)))
                     .build();
 
-            ShortcutInfo logShortcut = new ShortcutInfo.Builder(this, "shortcut_visit")
+            ShortcutInfoCompat logShortcut = new ShortcutInfoCompat.Builder(this, "shortcut_visit")
                     .setShortLabel(getString(R.string.action_admin))
-                    .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
+                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_launcher))
                     .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(adminUrl)))
                     .build();
 
-            assert shortcutManager != null;
 
-                shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut));
+                ShortcutManagerCompat.setDynamicShortcuts(this, Arrays.asList(logUploaderShortcut, logShortcut));
 
         }
 
