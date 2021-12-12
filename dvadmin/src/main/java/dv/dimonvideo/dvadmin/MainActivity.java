@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,7 +55,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     MyRecyclerViewAdapter adapter;
     SwipeRefreshLayout swipLayout;
-    String countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
+    String countDate, countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
     String hostUrl = "https://api.dimonvideo.net";
     String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
     String adminUrl = "https://dimonvideo.ru/logs";
@@ -65,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(true);
         swipLayout = this.findViewById(R.id.swipe_layout);
         swipLayout.setOnRefreshListener(this);
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -153,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         countAforum = jsonObject.getString("abuse_forum");
                         countSpace = jsonObject.getString("space");
                         countTic = jsonObject.getString("tic");
+                        countDate = jsonObject.getString("date");
                         countVisitors = jsonObject.getString("visitors");
                         today = jsonObject.getString("today");
 
@@ -170,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         if (is_space) count.add(countSpace);
                         if (is_visitors) count.add(countVisitors);
                         count.add(countTic);
+                        Toolbar toolbar = findViewById(R.id.toolbar);
+                        toolbar.setSubtitle(countDate);
 
                         RecyclerView recyclerView = findViewById(R.id.rv);
                         recyclerView.setHasFixedSize(true);
