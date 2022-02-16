@@ -3,28 +3,26 @@ package dv.dimonvideo.dvadmin;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.pm.ShortcutInfoCompat;
-import androidx.core.content.pm.ShortcutManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,14 +50,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
     MyRecyclerViewAdapter adapter;
-    SwipeRefreshLayout swipLayout;
     String countDate, countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
     String hostUrl = "https://api.dimonvideo.net";
+    String siteUrl = "https://dimonvideo.ru";
     String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
-    String adminUrl = "https://dimonvideo.ru/logs";
-    String uplUrl = "https://dimonvideo.ru/logs/uploader/0";
+    String adminUrl = siteUrl + "/logs";
+    String uplUrl = siteUrl + "/logs/uploader/0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,31 +66,34 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(toolbar);
-        swipLayout = this.findViewById(R.id.swipe_layout);
-        swipLayout.setOnRefreshListener(this);
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
         set_adapter();
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_layout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            recreate();
+            swipeRefreshLayout.setRefreshing(false);
 
+        });
         // shortcuts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
 
-            ShortcutManagerCompat shortcutManager = getSystemService(ShortcutManagerCompat.class);
+            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
 
-            ShortcutInfoCompat logUploaderShortcut = new ShortcutInfoCompat.Builder(this, "shortcut_visit_1")
+            ShortcutInfo logUploaderShortcut = new ShortcutInfo.Builder(this, "shortcut_visit_1")
                     .setShortLabel(getString(R.string.action_admin_upl))
-                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_launcher))
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher))
                     .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(uplUrl)))
                     .build();
 
-            ShortcutInfoCompat logShortcut = new ShortcutInfoCompat.Builder(this, "shortcut_visit")
+            ShortcutInfo logShortcut = new ShortcutInfo.Builder(this, "shortcut_visit")
                     .setShortLabel(getString(R.string.action_admin))
-                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_launcher))
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher))
                     .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(adminUrl)))
                     .build();
 
-
-                ShortcutManagerCompat.setDynamicShortcuts(this, Arrays.asList(logUploaderShortcut, logShortcut));
+            assert shortcutManager != null;
+            new Thread(() -> shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut))).start();
 
         }
 
@@ -265,12 +266,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             });
 
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id12) -> dialog.dismiss());
             alert.show();
         }
         // who added files now
@@ -291,12 +287,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             });
 
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id13) -> dialog.dismiss());
             alert.show();
         }
         // last ban
@@ -318,12 +309,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             });
 
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id14) -> dialog.dismiss());
             alert.show();
 
         }
@@ -346,12 +332,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             });
 
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id15) -> dialog.dismiss());
             alert.show();
 
         }
@@ -374,12 +355,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             });
 
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id16) -> dialog.dismiss());
             alert.show();
 
         }
@@ -410,6 +386,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         if (id == R.id.action_others) {
 
             String url = "https://play.google.com/store/apps/dev?id=6091758746633814135";
+            if (BuildConfig.FLAVOR.equals("DVAdmin_samsung"))  url = siteUrl + "/android.html";
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     url));
@@ -442,63 +419,63 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         if (adapter.getItem(position).equals(getString(R.string.uploader))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/logs/uploader/0"));
+                    siteUrl + "/logs/uploader/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.vuploader))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/logs/vuploader/0"));
+                    siteUrl + "/logs/vuploader/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.muzon))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/logs/muzon/0"));
+                    siteUrl + "/logs/muzon/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.usernews))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/logs/usernews/0"));
+                    siteUrl + "/logs/usernews/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.gallery))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/logs/gallery/0"));
+                    siteUrl + "/logs/gallery/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.devices))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/logs/device/0"));
+                    siteUrl + "/logs/device/0"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.forum))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/fadmin"));
+                    siteUrl + "/fadmin"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/forum/topic_1728146352"));
+                    siteUrl + "/forum/topic_1728146352"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
             }
         } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://dimonvideo.ru/forum/topic_1728146368"));
+                    siteUrl + "/forum/topic_1728146368"));
             try {
                 startActivity(browserIntent);
             } catch (Throwable ignored) {
@@ -536,11 +513,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             return true;
         }
         return super.onKeyLongPress(keycode, event);
-    }
-
-    @Override
-    public void onRefresh() {
-        recreate();
     }
 
 }
