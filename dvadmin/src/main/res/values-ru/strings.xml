@@ -8,9 +8,9 @@
     <string name="usernews">Ожидающие в Новостях:</string>
     <string name="gallery">Ожидающие в Картинках:</string>
     <string name="forum">Ожидающие темы форума:</string>
-    <string name="error_network_timeout">Error timeout, try again later</string>
-    <string name="error_server">Server error, try again later!</string>
-    <string name="error_network">Network error, try again later!</string>
+    <string name="error_network_timeout">Превышено время ожидания ответа от сервера</string>
+    <string name="error_server">Ошибка сервера, подождите!</string>
+    <string name="error_network">Ошибка сети, повторите позже!</string>
     <string name="refresh">Обновить</string>
     <string name="visitors">Посетителей сегодня:</string>
     <string name="tic">Yandex ИКС:</string>
@@ -36,4 +36,11 @@
     <string name="please_wait">Пожалуйста подождите</string>
     <string name="action_admin">Админка</string>
     <string name="action_admin_upl">В Обменнике</string>
+    <string name="no">Нет</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="ok">Да</string>
+    <string name="view_header">Внешний вид</string>
+    <string name="theme_black">Темная тема</string>
+    <string name="restart_app">Перезагрузите приложение!</string>
+    <string name="scale_title">Размер шрифта</string>
 </resources>

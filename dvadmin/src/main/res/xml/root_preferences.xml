@@ -1,5 +1,31 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory app:title="@string/view_header">
 
+        <ListPreference
+            app:defaultValue="true"
+            app:key="dvc_theme_list"
+            app:title="@string/theme_black"
+            android:entries="@array/theme_list"
+            android:entryValues="@array/theme_list_values"
+            android:summary="%s"/>
+        <ListPreference
+            app:defaultValue="1.0f"
+            app:entries="@array/size_entries"
+            app:entryValues="@array/size_values"
+            app:key="dvc_scale"
+            app:title="@string/scale_title"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/sync_header">
+
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:defaultValue="true"
+            app:title="@string/sync_title" />
+
+
+    </PreferenceCategory>
     <PreferenceCategory app:title="@string/razdel_header">
 
         <SwitchPreferenceCompat
@@ -49,14 +75,6 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sync_header">
 
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:defaultValue="true"
-            app:title="@string/sync_title" />
-
-
-    </PreferenceCategory>
 
 </PreferenceScreen>

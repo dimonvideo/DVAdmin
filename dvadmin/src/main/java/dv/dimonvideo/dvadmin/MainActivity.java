@@ -7,20 +7,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.content.res.Configuration;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -58,11 +62,23 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
     String adminUrl = siteUrl + "/logs";
     String uplUrl = siteUrl + "/logs/uploader/0";
+    SharedPreferences sharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String is_dark = sharedPrefs.getString("dvc_theme_list", "true");
+        if (Objects.equals(is_dark, "true"))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else if (Objects.equals(is_dark, "system"))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
         super.onCreate(savedInstanceState);
+        adjustFontScale(getResources().getConfiguration());
+
         setContentView(R.layout.layout);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getResources().getString(R.string.app_name));
         setSupportActionBar(toolbar);
@@ -104,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     // получение данных
     private void set_adapter(){
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean is_uploader = sharedPrefs.getBoolean("uploader",true);
         final boolean is_vuploader = sharedPrefs.getBoolean("vuploader",true);
         final boolean is_muzon = sharedPrefs.getBoolean("muzon",true);
@@ -173,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         if (is_space) count.add(countSpace);
                         if (is_visitors) count.add(countVisitors);
                         count.add(countTic);
+
                         Toolbar toolbar = findViewById(R.id.toolbar);
                         toolbar.setSubtitle(countDate);
 
@@ -182,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
                         dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(MainActivity.this, R.drawable.divider)));
                         recyclerView.addItemDecoration(dividerItemDecoration);
-                        adapter = new MyRecyclerViewAdapter(getApplicationContext(), Names, count);
+                        adapter = new MyRecyclerViewAdapter(this, Names, count);
                         adapter.setClickListener(MainActivity.this);
                         recyclerView.setAdapter(adapter);
 
@@ -386,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         if (id == R.id.action_others) {
 
             String url = "https://play.google.com/store/apps/dev?id=6091758746633814135";
-            if (BuildConfig.FLAVOR.equals("DVAdmin_samsung"))  url = siteUrl + "/android.html";
+            if (!BuildConfig.GOOGLE)  url = siteUrl + "/android.html";
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     url));
@@ -513,6 +530,17 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             return true;
         }
         return super.onKeyLongPress(keycode, event);
+    }
+
+    private void adjustFontScale(Configuration configuration) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        configuration.fontScale = Float.parseFloat(Objects.requireNonNull(sharedPrefs.getString("dvc_scale", "1.0f")));
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        assert wm != null;
+        wm.getDefaultDisplay().getMetrics(metrics);
+        metrics.scaledDensity = configuration.fontScale * metrics.density;
+        getBaseContext().getResources().updateConfiguration(configuration, metrics);
     }
 
 }

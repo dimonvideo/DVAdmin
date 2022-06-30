@@ -12,8 +12,8 @@
         android:id="@+id/Name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/text"
         android:layout_marginTop="5dp"
-        android:textColor="#FFFFFF"
         android:textSize="18sp"/>
 
     <TextView
@@ -22,6 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginStart="20dp"
-        android:textColor="#05F80F"
-        android:textSize="20sp"/>
+        android:textColor="@color/value"
+        android:textSize="18sp"/>
 </LinearLayout>

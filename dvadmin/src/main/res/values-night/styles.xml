@@ -1,15 +1,16 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@android:color/holo_blue_dark</item>
-        <item name="colorPrimaryDark">@android:color/holo_blue_light</item>
-        <item name="colorAccent">#00BCD4</item>
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@android:color/black</item>
+
     </style>
 
     <style name="NavDrawerTextStyle" parent="AppTheme">
-        <item name="android:textColor">@android:color/holo_blue_light</item>
+        <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -21,7 +22,7 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
     <style name="TextAppearance.MyApp.Title.Collapsed" parent="android:TextAppearance">
         <item name="android:textSize">14sp</item>
@@ -32,6 +33,5 @@
         <item name="android:textSize">18sp</item>
         <item name="android:ellipsize">none</item>
         <item name="android:singleLine">false</item>
-
     </style>
 </resources>

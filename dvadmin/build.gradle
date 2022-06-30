@@ -8,10 +8,11 @@ android {
 
     defaultConfig {
         applicationId "dv.dimonvideo.dvadmin"
-        minSdkVersion 22
+        multiDexEnabled true
+        minSdkVersion 20
         targetSdkVersion 32
-        versionCode 501
-        versionName "5.1"
+        versionCode 502
+        versionName "5.2"
 
     }
 
@@ -22,22 +23,49 @@ android {
     }
     flavorDimensions 'dimonvideo'
     productFlavors {
-        DVAdminPro {
+        DVAdmin_Samsung {
             dimension = 'dimonvideo'
-            buildConfigField "boolean", "FREE", "false"
-            buildConfigField "boolean", "TYPE", "true"
-            versionCode 556
+            buildConfigField "boolean", "HUAWEI", "false"
+            buildConfigField "boolean", "SAMSUNG", "true"
+            buildConfigField "boolean", "NASHSTORE", "false"
+            buildConfigField "boolean", "GOOGLE", "false"
+            versionNameSuffix "-samsung"
+        }
+        DVAdmin_Google {
+            dimension = 'dimonvideo'
+            buildConfigField "boolean", "HUAWEI", "false"
+            buildConfigField "boolean", "SAMSUNG", "false"
+            buildConfigField "boolean", "NASHSTORE", "false"
+            buildConfigField "boolean", "GOOGLE", "true"
+            versionNameSuffix "-google"
 
         }
-        DVAdmin {
+        DVAdmin_Huawei {
             dimension = 'dimonvideo'
-            buildConfigField "boolean", "TYPE", "true"
-            buildConfigField "boolean", "FREE", "true"
+            buildConfigField "boolean", "HUAWEI", "true"
+            buildConfigField "boolean", "SAMSUNG", "false"
+            buildConfigField "boolean", "NASHSTORE", "false"
+            buildConfigField "boolean", "GOOGLE", "false"
+            versionNameSuffix "-huawei"
+
         }
-        DVAdmin_samsung {
+        DVAdmin_NashStore {
             dimension = 'dimonvideo'
-            buildConfigField "boolean", "TYPE", "false"
-            buildConfigField "boolean", "FREE", "true"
+            buildConfigField "boolean", "HUAWEI", "false"
+            buildConfigField "boolean", "SAMSUNG", "false"
+            buildConfigField "boolean", "NASHSTORE", "true"
+            buildConfigField "boolean", "GOOGLE", "false"
+            versionNameSuffix "-nashstore"
+
+        }
+        DVAdminPro {
+            dimension = 'dimonvideo'
+            buildConfigField "boolean", "HUAWEI", "false"
+            buildConfigField "boolean", "SAMSUNG", "false"
+            buildConfigField "boolean", "NASHSTORE", "true"
+            buildConfigField "boolean", "GOOGLE", "false"
+            versionNameSuffix "-nashstore"
+
         }
     }
 }
@@ -48,7 +76,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.2.11'
-    implementation 'com.google.firebase:firebase-messaging:23.0.5'
+    implementation 'com.google.firebase:firebase-messaging:23.0.6'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.preference:preference:1.2.0'

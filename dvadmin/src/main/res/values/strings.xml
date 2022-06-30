@@ -35,4 +35,11 @@
     <string name="please_wait">Please wait</string>
     <string name="action_admin">Админка</string>
     <string name="action_admin_upl">Ожидающие в Обменнике</string>
+    <string name="no">No</string>
+    <string name="theme_system">Follow system</string>
+    <string name="ok">Yes</string>
+    <string name="view_header">View</string>
+    <string name="theme_black">Dark theme</string>
+    <string name="restart_app">Restart the app</string>
+    <string name="scale_title">Font size</string>
 </resources>
