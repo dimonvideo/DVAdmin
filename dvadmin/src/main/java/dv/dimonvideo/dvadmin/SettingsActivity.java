@@ -1,5 +1,8 @@
 package dv.dimonvideo.dvadmin;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -55,6 +58,20 @@ public class SettingsActivity extends AppCompatActivity {
 
                 Toast.makeText(requireContext(), requireContext().getString(R.string.restart_app), Toast.LENGTH_LONG).show();
                 requireActivity().recreate();
+                return true;
+            });
+
+            Preference dvc_widget = findPreference("dvc_widget_list");
+            assert dvc_widget != null;
+            dvc_widget.setOnPreferenceChangeListener((preference, newValue) -> {
+                Intent intent = new Intent(requireContext(), WidgetProvider.class);
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+
+                int[] ids = AppWidgetManager.getInstance(requireContext())
+                        .getAppWidgetIds(new ComponentName(requireContext(), WidgetProvider.class));
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+                requireContext().sendBroadcast(intent);
+                Toast.makeText(requireContext(), requireContext().getString(R.string.restart_app), Toast.LENGTH_LONG).show();
                 return true;
             });
         }

@@ -12,6 +12,19 @@
         <item>system</item>
     </string-array>
 
+    <!-- Widget Preference -->
+    <string-array name="widget_list">
+        <item>@string/visitors_widget</item>
+        <item>@string/tic_widget</item>
+        <item>@string/today</item>
+    </string-array>
+
+    <string-array name="widget_list_values">
+        <item>visitors</item>
+        <item>tic</item>
+        <item>today</item>
+    </string-array>
+
     <!-- Scale Preference -->
     <string-array name="size_entries">
         <item>Smallest</item>

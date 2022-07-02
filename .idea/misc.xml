@@ -3,9 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/drawable/myshape.xml" value="0.1875" />
+        <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/drawable/widget_background.xml" value="0.1875" />
         <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/layout/layout.xml" value="0.19782168186423504" />
         <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/layout/row.xml" value="0.13179347826086957" />
         <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/layout/settings_activity.xml" value="0.3523550724637681" />
+        <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/layout/widget_config.xml" value="0.3523550724637681" />
+        <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/layout/widget_item.xml" value="0.26875" />
+        <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/layout/widget_layout.xml" value="0.2994791666666667" />
+        <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/xml/appwidget_info.xml" value="0.2994791666666667" />
         <entry key="..\:/Android/DVAdmin/dvadmin/src/main/res/xml/root_preferences.xml" value="0.3523550724637681" />
       </map>
     </option>

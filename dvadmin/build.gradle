@@ -62,9 +62,9 @@ android {
             dimension = 'dimonvideo'
             buildConfigField "boolean", "HUAWEI", "false"
             buildConfigField "boolean", "SAMSUNG", "false"
-            buildConfigField "boolean", "NASHSTORE", "true"
-            buildConfigField "boolean", "GOOGLE", "false"
-            versionNameSuffix "-nashstore"
+            buildConfigField "boolean", "NASHSTORE", "false"
+            buildConfigField "boolean", "GOOGLE", "true"
+            versionNameSuffix "-pro"
 
         }
     }

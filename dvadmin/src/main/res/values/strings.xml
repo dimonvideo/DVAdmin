@@ -42,4 +42,7 @@
     <string name="theme_black">Dark theme</string>
     <string name="restart_app">Restart the app</string>
     <string name="scale_title">Font size</string>
+    <string name="widget_settings">Widget info</string>
+    <string name="visitors_widget">Visitors</string>
+    <string name="tic_widget">TIC</string>
 </resources>

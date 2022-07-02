@@ -43,4 +43,7 @@
     <string name="theme_black">Темная тема</string>
     <string name="restart_app">Перезагрузите приложение!</string>
     <string name="scale_title">Размер шрифта</string>
+    <string name="widget_settings">Информация виджета</string>
+    <string name="visitors_widget">Люди</string>
+    <string name="tic_widget">ТИЦ</string>
 </resources>

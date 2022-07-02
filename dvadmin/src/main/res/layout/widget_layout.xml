@@ -1,0 +1,78 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:background="@drawable/widget_background"
+    android:layout_height="match_parent"
+    android:padding="0dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="0dp"
+        android:paddingTop="6dp">
+
+        <LinearLayout
+            android:id="@+id/top_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="6dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="start"
+                android:background="@mipmap/ic_launcher"
+                android:contentDescription="@string/app_name"
+
+                />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/top_row"
+            android:layout_gravity="start"
+            android:gravity="start"
+            android:textSize="11sp"
+            android:paddingStart="5dp"
+            android:text="---"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            >
+
+        </TextView>
+        <TextView
+            android:id="@+id/widget_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:paddingTop="5dp"
+            android:text="---"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            >
+
+        </TextView>
+
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/refresh_button"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/refresh"
+        android:src="@android:drawable/stat_notify_sync"
+        app:tint="#99000000" />
+
+</RelativeLayout>

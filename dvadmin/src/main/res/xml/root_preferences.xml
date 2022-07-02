@@ -16,6 +16,13 @@
             app:key="dvc_scale"
             app:title="@string/scale_title"
             app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            app:defaultValue="visitors"
+            app:key="dvc_widget_list"
+            app:title="@string/widget_settings"
+            android:entries="@array/widget_list"
+            android:entryValues="@array/widget_list_values"
+            android:summary="%s"/>
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/sync_header">
 
