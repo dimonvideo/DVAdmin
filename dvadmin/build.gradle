@@ -8,8 +8,7 @@ android {
 
     defaultConfig {
         applicationId "dv.dimonvideo.dvadmin"
-        multiDexEnabled true
-        minSdkVersion 20
+        minSdkVersion 21
         targetSdkVersion 32
         versionCode 502
         versionName "5.2"
