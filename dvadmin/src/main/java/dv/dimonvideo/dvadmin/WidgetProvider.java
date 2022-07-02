@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -31,12 +32,17 @@ public class WidgetProvider extends AppWidgetProvider {
     String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
     SharedPreferences sharedPrefs;
     private static final String ACTION_UPDATE = "android.appwidget.action.APPWIDGET_UPDATE";
-    private static final String ACTION_OPEN = "android.appwidget.action.APPWIDGET_OPEN";
+    int showDate = 0;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager widgetManager, int[] appWidgetIds) {
-        for(int appWidgetId : appWidgetIds)
+        for(int appWidgetId : appWidgetIds) {
+            Bundle options = widgetManager.getAppWidgetOptions(appWidgetId);
+            int width = options.getInt (AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+            if (width > 100)  showDate = 1;
             updateAppWidget(context, appWidgetId);
+        }
+
     }
 
     public void updateAppWidget(Context context, int appWidgetId) {
@@ -71,9 +77,12 @@ public class WidgetProvider extends AppWidgetProvider {
     }
 
     @Override
-    public void onAppWidgetOptionsChanged(Context ctx, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
-        super.onAppWidgetOptionsChanged(ctx, appWidgetManager, appWidgetId, newOptions);
-        Log.i("---","Widget Resized");
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+        int width = newOptions.getInt (AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        if (width > 100)  showDate = 1;
+        updateAppWidget(context, appWidgetId);
+        Log.i("---","Widget Resized: "+width);
     }
 
     public void sendRequest(Context context, int appWidgetId) {
@@ -94,10 +103,10 @@ public class WidgetProvider extends AppWidgetProvider {
                         today = jsonObject.getString("today");
                         countDate = jsonObject.getString("date");
 
-                        processResponse(context, countVisitors, appWidgetId);
-                        if (Objects.equals(is_widget, "tic")) processResponse(context, countTic, appWidgetId);
+                        processResponse(context, countVisitors, countDate, appWidgetId, showDate);
+                        if (Objects.equals(is_widget, "tic")) processResponse(context, countTic, countDate, appWidgetId, showDate);
                         if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro")))
-                            processResponse(context, today, appWidgetId);
+                            processResponse(context, today, countDate, appWidgetId, showDate);
 
                     } catch (JSONException e) {
                         Toast.makeText(context, context.getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
@@ -110,18 +119,30 @@ public class WidgetProvider extends AppWidgetProvider {
 
     }
 
-    public void processResponse(Context context, String res, int appWidgetId) {
+    public void processResponse(Context context, String res, String date, int appWidgetId, int showDateSwitch) {
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         String is_widget = sharedPrefs.getString("dvc_widget_list", "visitors");
 
         text = context.getString(R.string.visitors_widget);
         if (Objects.equals(is_widget, "tic")) text = context.getString(R.string.tic_widget);
-        if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro"))) text = context.getString(R.string.today);
+        if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro")))
+        {
+            text = context.getString(R.string.today);
+            res = res.replace("->", " ");
+        }
+
+        Log.i("---","showDateSwitch: "+showDateSwitch);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         views.setTextViewText(R.id.widget_list, res);
         views.setTextViewText(R.id.text, text);
+        if (showDateSwitch == 0) views.setViewVisibility(R.id.date, View.GONE); else
+            views.setViewVisibility(R.id.date, View.VISIBLE);
+
+        if (BuildConfig.FLAVOR.equals("DVAdminPro")) views.setViewVisibility(R.id.date, View.VISIBLE);
+
+        views.setTextViewText(R.id.date, date);
         views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context));
 
         Intent intent = new Intent(context, MainActivity.class);

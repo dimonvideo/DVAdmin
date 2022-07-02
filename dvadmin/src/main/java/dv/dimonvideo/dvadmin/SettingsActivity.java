@@ -71,7 +71,6 @@ public class SettingsActivity extends AppCompatActivity {
                         .getAppWidgetIds(new ComponentName(requireContext(), WidgetProvider.class));
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
                 requireContext().sendBroadcast(intent);
-                Toast.makeText(requireContext(), requireContext().getString(R.string.restart_app), Toast.LENGTH_LONG).show();
                 return true;
             });
         }
