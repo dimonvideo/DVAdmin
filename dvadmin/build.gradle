@@ -8,10 +8,11 @@ android {
 
     defaultConfig {
         applicationId "dv.dimonvideo.dvadmin"
+        multiDexEnabled true
         minSdkVersion 21
         targetSdkVersion 32
-        versionCode 503
-        versionName "5.3"
+        versionCode 504
+        versionName "5.4"
 
     }
 
@@ -79,5 +80,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.preference:preference:1.2.0'
+    implementation 'com.android.support:multidex:1.0.3'
 
 }
