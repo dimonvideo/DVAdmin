@@ -23,7 +23,9 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import android.Manifest;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     String adminUrl = siteUrl + "/logs";
     String uplUrl = siteUrl + "/logs/uploader/0";
     SharedPreferences sharedPrefs;
+    private RequestPermissionHandler mRequestPermissionHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +126,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 .getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
         sendBroadcast(intent);
+
+        if ((Build.VERSION.SDK_INT >= 33)) {
+            mRequestPermissionHandler = new RequestPermissionHandler();
+            handlePerm();
+        }
     }
 
 
@@ -550,6 +558,22 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         wm.getDefaultDisplay().getMetrics(metrics);
         metrics.scaledDensity = configuration.fontScale * metrics.density;
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void handlePerm() {
+        mRequestPermissionHandler.requestPermission(this, new String[]{
+                Manifest.permission.POST_NOTIFICATIONS
+        }, 123, new RequestPermissionHandler.RequestPermissionListener() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onFailed() {
+                Toast.makeText(MainActivity.this, getString(R.string.perm_invalid), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }

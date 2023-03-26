@@ -46,4 +46,5 @@
     <string name="widget_settings">Информация виджета</string>
     <string name="visitors_widget">Люди</string>
     <string name="tic_widget">ТИЦ</string>
+    <string name="perm_invalid">Не получено разрешение для уведомлений!</string>
 </resources>

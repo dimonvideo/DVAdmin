@@ -45,4 +45,5 @@
     <string name="widget_settings">Widget info</string>
     <string name="visitors_widget">Visitors</string>
     <string name="tic_widget">TIC</string>
+    <string name="perm_invalid">Nopermissions!</string>
 </resources>
