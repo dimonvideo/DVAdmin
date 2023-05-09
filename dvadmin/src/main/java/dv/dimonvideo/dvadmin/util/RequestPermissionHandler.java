@@ -1,4 +1,4 @@
-package dv.dimonvideo.dvadmin;
+package dv.dimonvideo.dvadmin.util;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;

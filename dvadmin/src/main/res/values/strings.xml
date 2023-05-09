@@ -46,4 +46,6 @@
     <string name="visitors_widget">Visitors</string>
     <string name="tic_widget">TIC</string>
     <string name="perm_invalid">Nopermissions!</string>
+    <string name="press_twice">Press twice to exit</string>
+    <string name="actually">"actually: "</string>
 </resources>

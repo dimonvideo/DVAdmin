@@ -1,4 +1,4 @@
-package dv.dimonvideo.dvadmin;
+package dv.dimonvideo.dvadmin.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -12,22 +12,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
+import dv.dimonvideo.dvadmin.R;
 
-    private List<String> mData;
-    private List<String> mCount;
-    private LayoutInflater mInflater;
+public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+
+    private final List<String> mData;
+    private final List<String> mCount;
+    private final LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+    int selectedPos = RecyclerView.NO_POSITION;
 
-    // data is passed into the constructor
-    MyRecyclerViewAdapter(Context context, List<String> data, List<String> count) {
+    public Adapter(Context context, List<String> data, List<String> count) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         this.mCount = count;
 
     }
 
-    // inflates the row layout from xml when needed
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -35,23 +36,22 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return new ViewHolder(view);
     }
 
-    // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String title = mData.get(position);
         holder.myTextView.setText(title);
         String count = mCount.get(position);
         holder.myCountView.setText(count);
+
+        holder.itemView.setBackgroundColor(selectedPos == position ? Color.GREEN : Color.TRANSPARENT);
     }
 
-    // total number of rows
     @Override
     public int getItemCount() {
         return mData.size();
     }
 
 
-    // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView myTextView;
         TextView myCountView;
@@ -65,21 +65,24 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
         @Override
         public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+            if (mClickListener != null) {
+                if (getAdapterPosition() == RecyclerView.NO_POSITION) return;
+                notifyItemChanged(selectedPos);
+                selectedPos = getAdapterPosition();
+                notifyItemChanged(selectedPos);
+                mClickListener.onItemClick(view, getAdapterPosition());
+            }
         }
     }
 
-    // convenience method for getting data at click position
-    String getItem(int id) {
+    public String getItem(int id) {
         return mData.get(id);
     }
 
-    // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
-    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }

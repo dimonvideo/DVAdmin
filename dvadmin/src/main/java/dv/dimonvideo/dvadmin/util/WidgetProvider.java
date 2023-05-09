@@ -1,4 +1,4 @@
-package dv.dimonvideo.dvadmin;
+package dv.dimonvideo.dvadmin.util;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -25,6 +25,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Objects;
+
+import dv.dimonvideo.dvadmin.BuildConfig;
+import dv.dimonvideo.dvadmin.MainActivity;
+import dv.dimonvideo.dvadmin.R;
 
 public class WidgetProvider extends AppWidgetProvider {
     String countDate, countTic, countVisitors, today, text;

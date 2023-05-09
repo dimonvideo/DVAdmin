@@ -47,4 +47,6 @@
     <string name="visitors_widget">Люди</string>
     <string name="tic_widget">ТИЦ</string>
     <string name="perm_invalid">Не получено разрешение для уведомлений!</string>
+    <string name="press_twice">Нажмите еще раз для выхода</string>
+    <string name="actually">"обновление в "</string>
 </resources>

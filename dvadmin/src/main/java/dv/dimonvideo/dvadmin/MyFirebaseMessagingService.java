@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import dv.dimonvideo.dvadmin.util.WidgetProvider;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {

@@ -19,6 +19,8 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Objects;
 
+import dv.dimonvideo.dvadmin.util.WidgetProvider;
+
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -85,5 +87,13 @@ public class SettingsActivity extends AppCompatActivity {
         wm.getDefaultDisplay().getMetrics(metrics);
         metrics.scaledDensity = configuration.fontScale * metrics.density;
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
