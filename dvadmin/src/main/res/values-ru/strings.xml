@@ -49,4 +49,7 @@
     <string name="perm_invalid">Не получено разрешение для уведомлений!</string>
     <string name="press_twice">Нажмите еще раз для выхода</string>
     <string name="actually">"обновление в "</string>
+    <string name="dvclient">Интеграция с DVClient</string>
+    <string name="dvclient_sum">ожидающие файлы будут открываться в клиенте сайта DVClient</string>
+    <string name="func_header">Главное</string>
 </resources>

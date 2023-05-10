@@ -461,74 +461,80 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     @Override
     public void onItemClick(View view, int position) {
 
-
+        Intent browserIntent = null;
 
         if (adapter.getItem(position).equals(getString(R.string.uploader))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/logs/uploader/0"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Config.BASE_URL + "/logs/uploader/0"));
+
+            if (AppController.getInstance().is_client()) {
+                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                browserIntent.putExtra("action_admin", "uploader");
             }
+
         } else if (adapter.getItem(position).equals(getString(R.string.vuploader))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/vuploader/0"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
+
+            if (AppController.getInstance().is_client()) {
+                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                browserIntent.putExtra("action_admin", "vuploader");
             }
         } else if (adapter.getItem(position).equals(getString(R.string.muzon))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/muzon/0"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
+            if (AppController.getInstance().is_client()) {
+                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                browserIntent.putExtra("action_admin", "muzon");
             }
         } else if (adapter.getItem(position).equals(getString(R.string.usernews))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/usernews/0"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
+            if (AppController.getInstance().is_client()) {
+                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                browserIntent.putExtra("action_admin", "usernews");
             }
         } else if (adapter.getItem(position).equals(getString(R.string.gallery))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/gallery/0"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
+            if (AppController.getInstance().is_client()) {
+                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                browserIntent.putExtra("action_admin", "gallery");
             }
         } else if (adapter.getItem(position).equals(getString(R.string.devices))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/device/0"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
+            if (AppController.getInstance().is_client()) {
+                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                browserIntent.putExtra("action_admin", "device");
             }
         } else if (adapter.getItem(position).equals(getString(R.string.forum))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/fadmin"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/forum/topic_1728146352"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/forum/topic_1728146368"));
-            try {
-                startActivity(browserIntent);
-            } catch (Throwable ignored) {
-            }
-        }
 
+        } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))){
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    Config.BASE_URL + "/forum/topic_1728146352"));
+
+             
+        } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))){
+             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    Config.BASE_URL + "/forum/topic_1728146368"));
+
+        }
+        
+        try {
+            startActivity(browserIntent);
+        } catch (Throwable ignored) {
+        }
+        
         Toast.makeText(this, adapter.getItem(position), Toast.LENGTH_SHORT).show();
+        finish();
 
     }
 

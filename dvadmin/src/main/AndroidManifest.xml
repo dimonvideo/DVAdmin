@@ -9,7 +9,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
-
+    <queries>
+        <package android:name="com.dimonvideo.client" />
+    </queries>
     <application
         android:name=".util.AppController"
         android:allowBackup="true"

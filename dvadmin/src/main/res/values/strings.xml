@@ -48,4 +48,7 @@
     <string name="perm_invalid">Nopermissions!</string>
     <string name="press_twice">Press twice to exit</string>
     <string name="actually">"actually: "</string>
+    <string name="dvclient">DVClient integration</string>
+    <string name="dvclient_sum">chapters will open in dvclient app</string>
+    <string name="func_header">Functions</string>
 </resources>

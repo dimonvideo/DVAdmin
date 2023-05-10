@@ -10,7 +10,7 @@ android {
         applicationId "dv.dimonvideo.dvadmin"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 507
+        versionCode 508
         versionName "5.7"
         setProperty("archivesBaseName", applicationId + "-v" + versionCode)
 

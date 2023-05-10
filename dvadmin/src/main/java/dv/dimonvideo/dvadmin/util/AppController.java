@@ -66,6 +66,7 @@ public class AppController extends Application {
     public boolean is_space() { return getSharedPreferences().getBoolean("space", true);}
     public boolean is_visitors() { return getSharedPreferences().getBoolean("visitors", true);}
     public boolean is_notify() { return getSharedPreferences().getBoolean("sync", true);}
+    public boolean is_client() { return getSharedPreferences().getBoolean("dvclient", false);}
 
     // =============================================== put preferences ================================================================== //
 
