@@ -54,6 +54,9 @@ public class AppController extends Application {
     public String isDark() {
         return getSharedPreferences().getString("dvc_theme_list", "true");
     }
+    public String isWidget() {
+        return getSharedPreferences().getString("dvc_widget_list", "visitors");
+    }
     public boolean is_uploader() { return getSharedPreferences().getBoolean("uploader", true);}
     public boolean is_vuploader() { return getSharedPreferences().getBoolean("vuploader", true);}
     public boolean is_muzon() { return getSharedPreferences().getBoolean("muzon", true);}

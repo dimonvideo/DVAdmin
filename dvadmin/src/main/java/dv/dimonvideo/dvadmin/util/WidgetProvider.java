@@ -6,15 +6,12 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-
-import androidx.preference.PreferenceManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -27,14 +24,14 @@ import org.json.JSONObject;
 import java.util.Objects;
 
 import dv.dimonvideo.dvadmin.BuildConfig;
+import dv.dimonvideo.dvadmin.Config;
 import dv.dimonvideo.dvadmin.MainActivity;
 import dv.dimonvideo.dvadmin.R;
 
 public class WidgetProvider extends AppWidgetProvider {
     String countDate, countTic, countVisitors, today, text;
-    String hostUrl = "https://api.dimonvideo.net";
-    String countUrl = hostUrl + "/smart/dvadminapi.php?op=18";
-    SharedPreferences sharedPrefs;
+    String hostUrl = Config.HOST_URL;
+    String countUrl = Config.COUNT_URL;
     private static final String ACTION_UPDATE = "android.appwidget.action.APPWIDGET_UPDATE";
     int showDate = 0;
 
@@ -91,8 +88,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public void sendRequest(Context context, int appWidgetId) {
 
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String is_widget = sharedPrefs.getString("dvc_widget_list", "visitors");
+        String is_widget = AppController.getInstance().isWidget();
 
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
@@ -125,8 +121,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public void processResponse(Context context, String res, String date, int appWidgetId, int showDateSwitch) {
 
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String is_widget = sharedPrefs.getString("dvc_widget_list", "visitors");
+        String is_widget = AppController.getInstance().isWidget();
 
         text = context.getString(R.string.visitors_widget);
         if (Objects.equals(is_widget, "tic")) text = context.getString(R.string.tic_widget);
@@ -153,7 +148,7 @@ public class WidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-        } else pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        } else pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         views.setOnClickPendingIntent(R.id.text, pendingIntent);
         views.setOnClickPendingIntent(R.id.widget_list, pendingIntent);
