@@ -37,10 +37,10 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager widgetManager, int[] appWidgetIds) {
-        for(int appWidgetId : appWidgetIds) {
+        for (int appWidgetId : appWidgetIds) {
             Bundle options = widgetManager.getAppWidgetOptions(appWidgetId);
-            int width = options.getInt (AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-            if (width > 100)  showDate = 1;
+            int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+            if (width > 100) showDate = 1;
             updateAppWidget(context, appWidgetId);
         }
 
@@ -66,24 +66,24 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Enter relevant functionality for when the first widget is created
-        Log.i("---","App Widget Enabled");
+        Log.i("---", "App Widget Enabled");
 
     }
 
     @Override
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
-        Log.i("---","App Widget Disabled");
+        Log.i("---", "App Widget Disabled");
 
     }
 
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-        int width = newOptions.getInt (AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        if (width > 100)  showDate = 1;
+        int width = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        if (width > 100) showDate = 1;
         updateAppWidget(context, appWidgetId);
-        Log.i("---","Widget Resized: "+width);
+        Log.i("---", "Widget Resized: " + width);
     }
 
     public void sendRequest(Context context, int appWidgetId) {
@@ -104,7 +104,8 @@ public class WidgetProvider extends AppWidgetProvider {
                         countDate = jsonObject.getString("date");
 
                         processResponse(context, countVisitors, countDate, appWidgetId, showDate);
-                        if (Objects.equals(is_widget, "tic")) processResponse(context, countTic, countDate, appWidgetId, showDate);
+                        if (Objects.equals(is_widget, "tic"))
+                            processResponse(context, countTic, countDate, appWidgetId, showDate);
                         if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro")))
                             processResponse(context, today, countDate, appWidgetId, showDate);
 
@@ -125,21 +126,22 @@ public class WidgetProvider extends AppWidgetProvider {
 
         text = context.getString(R.string.visitors_widget);
         if (Objects.equals(is_widget, "tic")) text = context.getString(R.string.tic_widget);
-        if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro")))
-        {
+        if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro"))) {
             text = context.getString(R.string.today);
             res = res.replace("->", " ");
         }
 
-        Log.i("---","showDateSwitch: "+showDateSwitch);
+        Log.i("---", "showDateSwitch: " + showDateSwitch);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         views.setTextViewText(R.id.widget_list, res);
         views.setTextViewText(R.id.text, text);
-        if (showDateSwitch == 0) views.setViewVisibility(R.id.date, View.GONE); else
+        if (showDateSwitch == 0) views.setViewVisibility(R.id.date, View.GONE);
+        else
             views.setViewVisibility(R.id.date, View.VISIBLE);
 
-        if (BuildConfig.FLAVOR.equals("DVAdminPro")) views.setViewVisibility(R.id.date, View.VISIBLE);
+        if (BuildConfig.FLAVOR.equals("DVAdminPro"))
+            views.setViewVisibility(R.id.date, View.VISIBLE);
 
         views.setTextViewText(R.id.date, date);
         views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context));
@@ -148,7 +150,8 @@ public class WidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-        } else pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        } else
+            pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         views.setOnClickPendingIntent(R.id.text, pendingIntent);
         views.setOnClickPendingIntent(R.id.widget_list, pendingIntent);
@@ -160,8 +163,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
         Intent intent = new Intent(context, getClass());
         intent.setAction(WidgetProvider.ACTION_UPDATE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-        } else return PendingIntent.getBroadcast(context, 0, intent, 0);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+
     }
 }
