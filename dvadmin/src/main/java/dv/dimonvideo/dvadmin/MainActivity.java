@@ -1,7 +1,7 @@
 package dv.dimonvideo.dvadmin;
 
+import android.Manifest;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,10 +14,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.DisplayMetrics;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +22,6 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
-import android.Manifest;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
@@ -44,14 +40,9 @@ import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +53,7 @@ import java.util.Objects;
 
 import dv.dimonvideo.dvadmin.adapter.Adapter;
 import dv.dimonvideo.dvadmin.databinding.LayoutBinding;
+import dv.dimonvideo.dvadmin.util.Analytics;
 import dv.dimonvideo.dvadmin.util.AppController;
 import dv.dimonvideo.dvadmin.util.ProgressHelper;
 import dv.dimonvideo.dvadmin.util.RequestPermissionHandler;
@@ -75,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     public static LayoutBinding binding;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -91,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         adjustFontScale(getResources().getConfiguration());
 
-
+        Analytics.init(this);
 
         toolbar = binding.toolbar;
         toolbar.setTitle(getResources().getString(R.string.app_name));
@@ -146,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
 
     // получение данных
-    private void set_adapter(){
+    private void set_adapter() {
 
         final boolean is_uploader = AppController.getInstance().is_uploader();
         final boolean is_vuploader = AppController.getInstance().is_vuploader();
@@ -159,12 +152,11 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         final boolean is_abuse_forum = AppController.getInstance().is_abuse_forum();
         final boolean is_space = AppController.getInstance().is_space();
         final boolean is_visitors = AppController.getInstance().is_visitors();
-        final boolean is_notify = AppController.getInstance().is_notify();
 
         final ArrayList<String> count = new ArrayList<>();
 
         final ArrayList<String> Names = new ArrayList<>();
-        if (BuildConfig.FLAVOR.equals("DVAdminPro")) Names.add(getString(R.string.today));
+        if (BuildConfig.PRO) Names.add(getString(R.string.today));
         if (is_uploader) Names.add(getString(R.string.uploader));
         if (is_vuploader) Names.add(getString(R.string.vuploader));
         if (is_muzon) Names.add(getString(R.string.muzon));
@@ -204,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                         today = jsonObject.getString("today");
 
                         count.clear();
-                        if (BuildConfig.FLAVOR.equals("DVAdminPro")) count.add(today);
+                        if (BuildConfig.PRO) count.add(today);
                         if (is_uploader) count.add(countUploader);
                         if (is_vuploader) count.add(countVuploader);
                         if (is_muzon) count.add(countMuzon);
@@ -218,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                         if (is_visitors) count.add(countVisitors);
                         count.add(countTic);
 
-                        toolbar.setSubtitle(getString(R.string.actually)+countDate);
+                        toolbar.setSubtitle(getString(R.string.actually) + countDate);
 
                         recyclerView.setHasFixedSize(true);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -228,19 +220,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                         adapter = new Adapter(this, Names, count);
                         adapter.setClickListener(MainActivity.this);
                         recyclerView.setAdapter(adapter);
-
-                        try {
-                            FirebaseOptions options = new FirebaseOptions.Builder()
-                                    .setApplicationId("1:50549051988:android:a46a6e539a88fde4e7d3c1") // Required for Analytics.
-                                    .setProjectId("dvadmin-5a6d2") // Required for Firebase Installations.
-                                    .build();
-                            FirebaseApp.initializeApp(MainActivity.this, options, "DVAdmin");
-
-                            if (is_notify) {
-                                FirebaseMessaging.getInstance().subscribeToTopic("all");
-                            } else FirebaseMessaging.getInstance().unsubscribeFromTopic("all");
-                        } catch (Throwable ignored) {
-                        }
 
                         if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
 
@@ -252,18 +231,18 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
             if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
 
-        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-                    } else if (error instanceof AuthFailureError) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-                    } else if (error instanceof ServerError) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
-                    } else if (error instanceof NetworkError) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_network), Toast.LENGTH_LONG).show();
-                    } else if (error instanceof ParseError) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
-                    }
-                });
+            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+            } else if (error instanceof AuthFailureError) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+            } else if (error instanceof ServerError) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
+            } else if (error instanceof NetworkError) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_network), Toast.LENGTH_LONG).show();
+            } else if (error instanceof ParseError) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
+            }
+        });
 
         AppController.getInstance().addToRequestQueue(stringRequest);
 
@@ -430,11 +409,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         if (id == R.id.action_others) {
 
             String url = "https://play.google.com/store/apps/dev?id=6091758746633814135";
-            if (!BuildConfig.GOOGLE)  url = Config.BASE_URL + "/android.html";
+            if (!BuildConfig.GOOGLE) url = Config.BASE_URL + "/android.html";
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     url));
-
 
 
             try {
@@ -463,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         Intent browserIntent = null;
 
-        if (adapter.getItem(position).equals(getString(R.string.uploader))){
+        if (adapter.getItem(position).equals(getString(R.string.uploader))) {
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Config.BASE_URL + "/logs/uploader/0"));
 
             if (AppController.getInstance().is_client()) {
@@ -472,8 +450,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                 browserIntent.putExtra("action_admin", "uploader");
             }
 
-        } else if (adapter.getItem(position).equals(getString(R.string.vuploader))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.vuploader))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/vuploader/0"));
 
             if (AppController.getInstance().is_client()) {
@@ -481,58 +459,58 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "vuploader");
             }
-        } else if (adapter.getItem(position).equals(getString(R.string.muzon))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.muzon))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/muzon/0"));
             if (AppController.getInstance().is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "muzon");
             }
-        } else if (adapter.getItem(position).equals(getString(R.string.usernews))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.usernews))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/usernews/0"));
             if (AppController.getInstance().is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "usernews");
             }
-        } else if (adapter.getItem(position).equals(getString(R.string.gallery))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.gallery))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/gallery/0"));
             if (AppController.getInstance().is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "gallery");
             }
-        } else if (adapter.getItem(position).equals(getString(R.string.devices))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.devices))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/device/0"));
             if (AppController.getInstance().is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "device");
             }
-        } else if (adapter.getItem(position).equals(getString(R.string.forum))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.forum))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/fadmin"));
 
-        } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+        } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/forum/topic_1728146352"));
 
-             
-        } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))){
-             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+
+        } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))) {
+            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/forum/topic_1728146368"));
 
         }
-        
+
         try {
             startActivity(browserIntent);
         } catch (Throwable ignored) {
         }
-        
+
         Toast.makeText(this, adapter.getItem(position), Toast.LENGTH_SHORT).show();
         finish();
 
@@ -552,27 +530,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     @Override
     public void onPause() {
         super.onPause();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            finish();
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, getString(R.string.press_twice), Toast.LENGTH_SHORT).show();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce=false, 2000);
-    }
-
-    @Override
-    public boolean onKeyLongPress(int keycode, KeyEvent event) {
-        if (keycode == KeyEvent.KEYCODE_BACK) {
-            onBackPressed();
-            return true;
-        }
-        return super.onKeyLongPress(keycode, event);
     }
 
     private void adjustFontScale(Configuration configuration) {
