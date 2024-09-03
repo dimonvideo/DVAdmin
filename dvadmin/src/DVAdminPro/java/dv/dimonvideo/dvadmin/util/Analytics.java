@@ -23,7 +23,7 @@ public class Analytics {
             FirebaseApp.initializeApp(context, options, "DVAdmin");
 
             if (is_notify) {
-                Log.v(Config.TAG, "!!!! ====== NOTICE ======== !!!! ");
+                Log.v(Config.TAG, "!!!! ====== SUBSCRIBED ======== !!!! ");
                 FirebaseMessaging.getInstance().subscribeToTopic("DVAdmin");
             } else FirebaseMessaging.getInstance().unsubscribeFromTopic("DVAdmin");
         } catch (Throwable ignored) {
