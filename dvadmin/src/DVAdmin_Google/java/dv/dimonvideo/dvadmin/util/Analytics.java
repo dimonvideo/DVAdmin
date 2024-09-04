@@ -1,10 +1,13 @@
 package dv.dimonvideo.dvadmin.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import dv.dimonvideo.dvadmin.Config;
 
 public class Analytics {
 
@@ -20,9 +23,12 @@ public class Analytics {
             FirebaseApp.initializeApp(context, options, "DVAdmin");
 
             if (is_notify) {
+                Log.v(Config.TAG, "!!!! ====== SUBSCRIBED ======== !!!! ");
                 FirebaseMessaging.getInstance().subscribeToTopic("DVAdmin");
             } else FirebaseMessaging.getInstance().unsubscribeFromTopic("DVAdmin");
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            Log.v(Config.TAG, "!!!! ====== SUBSCRIBED ERROR ======== !!!! " + e);
+
         }
 
     }

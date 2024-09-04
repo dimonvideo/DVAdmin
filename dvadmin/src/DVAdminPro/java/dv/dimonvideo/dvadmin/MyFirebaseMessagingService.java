@@ -27,7 +27,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
         sendBroadcast(intent);
 
-        Log.v("---", "!!!! ====== NOTICE ======== !!!! ");
+        Log.v(Config.TAG, "!!!! ====== NOTICE ======== !!!! ");
 
     }
 
