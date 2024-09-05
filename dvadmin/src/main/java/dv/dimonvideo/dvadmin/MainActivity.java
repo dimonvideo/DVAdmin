@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             alert.setTitle(getString(R.string.action_bd));
 
             WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/smart/dvadminapi.php?op=9");
+            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=9");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             alert.setTitle(getString(R.string.action_whoaddedfiles));
 
             WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/smart/dvadminapi.php?op=12");
+            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=12");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl(Config.HOST_URL + "/smart/dvadminapi.php?op=14");
+            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=14");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl(Config.HOST_URL + "/smart/dvadminapi.php?op=15");
+            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=15");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl(Config.HOST_URL + "/smart/dvadminapi.php?op=11");
+            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=11");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
             WebView wv = new WebView(this);
 
-            wv.loadUrl(Config.HOST_URL + "/smart/dvadminapi.php?op=13");
+            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=13");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {

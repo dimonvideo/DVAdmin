@@ -132,6 +132,7 @@ public class WidgetProvider extends AppWidgetProvider {
         }
 
         Log.i("---", "showDateSwitch: " + showDateSwitch);
+        Log.i("---", "showDateSwitch: " + showDateSwitch);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         views.setTextViewText(R.id.widget_list, res);
