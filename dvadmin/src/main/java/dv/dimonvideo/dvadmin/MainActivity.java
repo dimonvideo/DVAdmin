@@ -88,7 +88,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         adjustFontScale(getResources().getConfiguration());
 
-        Analytics.init(this);
+        try {
+            Analytics.init(this);
+        } catch (Exception ignored) {
+        }
 
         toolbar = binding.toolbar;
         toolbar.setTitle(getResources().getString(R.string.app_name));

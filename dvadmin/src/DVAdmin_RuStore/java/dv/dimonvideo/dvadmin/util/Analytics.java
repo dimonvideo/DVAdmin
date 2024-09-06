@@ -21,19 +21,28 @@ public class Analytics {
 
         final boolean is_notify = AppController.getInstance().is_notify();
 
-        FirebaseMessaging.getInstance().subscribeToTopic("DVAdmin")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+        FirebaseApp.initializeApp(context);
+
+        if (is_notify) {
+            FirebaseMessaging.getInstance().subscribeToTopic("DVAdmin")
+                    .addOnCompleteListener(task -> {
                         String msg = "Subscribed";
                         if (!task.isSuccessful()) {
                             msg = "Subscribe failed";
                         }
                         Log.d(Config.TAG, msg);
                         Toast.makeText(context.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+                    });
+        } else {
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("DVAdmin")
+                    .addOnCompleteListener(task -> {
+                        String msg = "unSubscribed";
+                        if (!task.isSuccessful()) {
+                            msg = "unSubscribe failed";
+                        }
+                        Log.d(Config.TAG, msg);
+                    });
+        }
     }
 
 }
