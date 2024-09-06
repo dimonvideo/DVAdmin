@@ -1,6 +1,5 @@
 package dv.dimonvideo.dvadmin;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -21,7 +20,6 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.List;
-import java.util.Objects;
 
 import dv.dimonvideo.dvadmin.util.WidgetProvider;
 

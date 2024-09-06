@@ -88,7 +88,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public void sendRequest(Context context, int appWidgetId) {
 
-        String is_widget = AppController.getInstance().isWidget();
+        String is_widget = AppController.getInstance(context).isWidget();
 
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
@@ -122,7 +122,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public void processResponse(Context context, String res, String date, int appWidgetId, int showDateSwitch) {
 
-        String is_widget = AppController.getInstance().isWidget();
+        String is_widget = AppController.getInstance(context).isWidget();
 
         text = context.getString(R.string.visitors_widget);
         if (Objects.equals(is_widget, "tic")) text = context.getString(R.string.tic_widget);

@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        final String is_dark = AppController.getInstance().isDark();
+        final String is_dark = AppController.getInstance(this).isDark();
         if (Objects.equals(is_dark, "true"))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else if (Objects.equals(is_dark, "system"))
@@ -83,15 +83,17 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         super.onCreate(savedInstanceState);
-        binding = LayoutBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        adjustFontScale(getResources().getConfiguration());
 
         try {
             Analytics.init(this);
         } catch (Exception ignored) {
         }
+
+        binding = LayoutBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        adjustFontScale(getResources().getConfiguration());
+
 
         toolbar = binding.toolbar;
         toolbar.setTitle(getResources().getString(R.string.app_name));
@@ -165,17 +167,17 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     // получение данных
     private void set_adapter() {
 
-        final boolean is_uploader = AppController.getInstance().is_uploader();
-        final boolean is_vuploader = AppController.getInstance().is_vuploader();
-        final boolean is_muzon = AppController.getInstance().is_muzon();
-        final boolean is_usernews = AppController.getInstance().is_usernews();
-        final boolean is_gallery = AppController.getInstance().is_gallery();
-        final boolean is_devices = AppController.getInstance().is_devices();
-        final boolean is_forum = AppController.getInstance().is_forum();
-        final boolean is_abuse_file = AppController.getInstance().is_abuse_file();
-        final boolean is_abuse_forum = AppController.getInstance().is_abuse_forum();
-        final boolean is_space = AppController.getInstance().is_space();
-        final boolean is_visitors = AppController.getInstance().is_visitors();
+        final boolean is_uploader = AppController.getInstance(this).is_uploader();
+        final boolean is_vuploader = AppController.getInstance(this).is_vuploader();
+        final boolean is_muzon = AppController.getInstance(this).is_muzon();
+        final boolean is_usernews = AppController.getInstance(this).is_usernews();
+        final boolean is_gallery = AppController.getInstance(this).is_gallery();
+        final boolean is_devices = AppController.getInstance(this).is_devices();
+        final boolean is_forum = AppController.getInstance(this).is_forum();
+        final boolean is_abuse_file = AppController.getInstance(this).is_abuse_file();
+        final boolean is_abuse_forum = AppController.getInstance(this).is_abuse_forum();
+        final boolean is_space = AppController.getInstance(this).is_space();
+        final boolean is_visitors = AppController.getInstance(this).is_visitors();
 
         final ArrayList<String> count = new ArrayList<>();
 
@@ -268,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             }
         });
 
-        AppController.getInstance().addToRequestQueue(stringRequest);
+        AppController.getInstance(this).addToRequestQueue(stringRequest, 6000);
 
     }
 
@@ -468,7 +470,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         if (adapter.getItem(position).equals(getString(R.string.uploader))) {
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Config.BASE_URL + "/logs/uploader/0"));
 
-            if (AppController.getInstance().is_client()) {
+            if (AppController.getInstance(this).is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "uploader");
@@ -478,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/vuploader/0"));
 
-            if (AppController.getInstance().is_client()) {
+            if (AppController.getInstance(this).is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "vuploader");
@@ -486,7 +488,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         } else if (adapter.getItem(position).equals(getString(R.string.muzon))) {
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/muzon/0"));
-            if (AppController.getInstance().is_client()) {
+            if (AppController.getInstance(this).is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "muzon");
@@ -494,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         } else if (adapter.getItem(position).equals(getString(R.string.usernews))) {
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/usernews/0"));
-            if (AppController.getInstance().is_client()) {
+            if (AppController.getInstance(this).is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "usernews");
@@ -502,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         } else if (adapter.getItem(position).equals(getString(R.string.gallery))) {
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/gallery/0"));
-            if (AppController.getInstance().is_client()) {
+            if (AppController.getInstance(this).is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "gallery");
@@ -510,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         } else if (adapter.getItem(position).equals(getString(R.string.devices))) {
             browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                     Config.BASE_URL + "/logs/device/0"));
-            if (AppController.getInstance().is_client()) {
+            if (AppController.getInstance(this).is_client()) {
                 browserIntent = new Intent("com.dimonvideo.client.dvadmin");
                 browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 browserIntent.putExtra("action_admin", "device");

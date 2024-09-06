@@ -19,9 +19,13 @@ public class Analytics {
 
     public static void init(Context context) {
 
-        final boolean is_notify = AppController.getInstance().is_notify();
+        final boolean is_notify = AppController.getInstance(context).is_notify();
 
-        FirebaseApp.initializeApp(context);
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setApplicationId("1:50549051988:android:a46a6e539a88fde4e7d3c1") // Required for Analytics.
+                .setProjectId("dvadmin-5a6d2") // Required for Firebase Installations.
+                .build();
+        FirebaseApp.initializeApp(context, options, "DVAdmin");
 
         if (is_notify) {
             FirebaseMessaging.getInstance().subscribeToTopic("DVAdmin")
