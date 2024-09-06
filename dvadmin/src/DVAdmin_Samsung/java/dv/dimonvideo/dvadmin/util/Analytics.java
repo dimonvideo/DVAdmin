@@ -21,7 +21,7 @@ public class Analytics {
 
         final boolean is_notify = AppController.getInstance().is_notify();
 
-        FirebaseMessaging.getInstance().subscribeToTopic("weather")
+        FirebaseMessaging.getInstance().subscribeToTopic("DVAdmin")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
