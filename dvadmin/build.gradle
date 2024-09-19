@@ -161,27 +161,27 @@ dependencies {
 
     // Google
     DVAdmin_GoogleImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:33.2.0'))
+    DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:33.3.0'))
     DVAdmin_GoogleImplementation('com.google.firebase:firebase-messaging:24.0.1')
 
     // RuStore
     DVAdmin_RuStoreImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_RuStoreImplementation(platform('com.google.firebase:firebase-bom:33.2.0'))
+    DVAdmin_RuStoreImplementation(platform('com.google.firebase:firebase-bom:33.3.0'))
     DVAdmin_RuStoreImplementation('com.google.firebase:firebase-messaging:24.0.1')
 
     // NashStore
     DVAdmin_NashStoreImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:33.2.0'))
+    DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:33.3.0'))
     DVAdmin_NashStoreImplementation('com.google.firebase:firebase-messaging:24.0.1')
 
     // Pro
     DVAdminProImplementation('com.google.gms:google-services:4.4.2')
-    DVAdminProImplementation(platform('com.google.firebase:firebase-bom:33.2.0'))
+    DVAdminProImplementation(platform('com.google.firebase:firebase-bom:33.3.0'))
     DVAdminProImplementation('com.google.firebase:firebase-messaging:24.0.1')
 
     // Samsung
     DVAdmin_SamsungImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_SamsungImplementation(platform('com.google.firebase:firebase-bom:33.2.0'))
+    DVAdmin_SamsungImplementation(platform('com.google.firebase:firebase-bom:33.3.0'))
     DVAdmin_SamsungImplementation('com.google.firebase:firebase-messaging:24.0.1')
 
     // HUAWEI
