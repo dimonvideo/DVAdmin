@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         final ArrayList<String> count = new ArrayList<>();
 
         final ArrayList<String> Names = new ArrayList<>();
-        if (BuildConfig.PRO) Names.add(getString(R.string.today));
+        if (BuildConfig.GOOGLE) Names.add(getString(R.string.today));
         if (is_uploader) Names.add(getString(R.string.uploader));
         if (is_vuploader) Names.add(getString(R.string.vuploader));
         if (is_muzon) Names.add(getString(R.string.muzon));
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                         today = jsonObject.getString("today");
 
                         count.clear();
-                        if (BuildConfig.PRO) count.add(today);
+                        if (BuildConfig.GOOGLE) count.add(today);
                         if (is_uploader) count.add(countUploader);
                         if (is_vuploader) count.add(countVuploader);
                         if (is_muzon) count.add(countMuzon);

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 
 android {
@@ -21,8 +22,8 @@ android {
         applicationId "dv.dimonvideo.dvadmin"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode 519
-        versionName "6.2"
+        versionCode 520
+        versionName "6.3"
         multiDexEnabled true
         setProperty("archivesBaseName", applicationId + "-v" + versionCode)
 
@@ -94,17 +95,7 @@ android {
             buildConfigField "boolean", "PRO", "false"
             versionNameSuffix "-rustore"
         }
-        DVAdminPro {
-            dimension = 'dimonvideo'
-            buildConfigField "boolean", "HUAWEI", "false"
-            buildConfigField "boolean", "SAMSUNG", "false"
-            buildConfigField "boolean", "NASHSTORE", "false"
-            buildConfigField "boolean", "GOOGLE", "false"
-            buildConfigField "boolean", "RUSTORE", "false"
-            buildConfigField "boolean", "PRO", "true"
-            versionNameSuffix "-pro"
 
-        }
     }
     namespace 'dv.dimonvideo.dvadmin'
     sourceSets {
@@ -132,10 +123,6 @@ android {
             manifest.srcFile 'src/DVAdmin_Huawei/AndroidManifest.xml'
             java.srcDirs += 'src/DVAdmin_Huawei/java'
         }
-        DVAdminPro {
-            manifest.srcFile 'src/main/AndroidManifest.xml'
-            java.srcDirs += 'src/DVAdminPro/java'
-        }
     }
     splits {
         abi {
@@ -158,6 +145,7 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.google.firebase:firebase-messaging:24.1.0'
 
     // Google
     DVAdmin_GoogleImplementation('com.google.gms:google-services:4.4.2')
@@ -173,11 +161,6 @@ dependencies {
     DVAdmin_NashStoreImplementation('com.google.gms:google-services:4.4.2')
     DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:33.9.0'))
     DVAdmin_NashStoreImplementation('com.google.firebase:firebase-messaging:24.1.0')
-
-    // Pro
-    DVAdminProImplementation('com.google.gms:google-services:4.4.2')
-    DVAdminProImplementation(platform('com.google.firebase:firebase-bom:33.9.0'))
-    DVAdminProImplementation('com.google.firebase:firebase-messaging:24.1.0')
 
     // Samsung
     DVAdmin_SamsungImplementation('com.google.gms:google-services:4.4.2')

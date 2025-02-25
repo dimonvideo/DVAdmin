@@ -2,11 +2,9 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:background="@drawable/widget_background"
+    android:paddingTop="3dp"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/app_icon"
@@ -34,10 +32,8 @@
             android:layout_below="@id/app_icon"
             android:layout_gravity="center_horizontal|center_vertical"
             android:gravity="center_horizontal|center_vertical"
-            android:textSize="11sp"
-            android:paddingTop="5dp"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:textSize="10sp"
+            android:padding="5dp"
             android:text="---"
             android:maxLines="1"
             android:textColor="@color/date"
@@ -51,7 +47,7 @@
             android:layout_below="@id/text"
             android:layout_gravity="center_horizontal|center_vertical"
             android:gravity="center_horizontal|center_vertical"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:paddingTop="5dp"
             android:text="---"
@@ -67,10 +63,8 @@
             android:layout_below="@id/widget_list"
             android:layout_gravity="end"
             android:gravity="end"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:textStyle="normal"
-            android:paddingTop="7dp"
-            android:paddingStart="5dp"
             android:paddingEnd="5dp"
             android:textColor="@color/date"
             android:text="---"
@@ -83,4 +77,3 @@
 
 
 
-</RelativeLayout>

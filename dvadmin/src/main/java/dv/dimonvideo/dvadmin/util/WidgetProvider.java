@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,7 +22,6 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
-import dv.dimonvideo.dvadmin.BuildConfig;
 import dv.dimonvideo.dvadmin.Config;
 import dv.dimonvideo.dvadmin.MainActivity;
 import dv.dimonvideo.dvadmin.R;
@@ -106,7 +104,7 @@ public class WidgetProvider extends AppWidgetProvider {
                         processResponse(context, countVisitors, countDate, appWidgetId, showDate);
                         if (Objects.equals(is_widget, "tic"))
                             processResponse(context, countTic, countDate, appWidgetId, showDate);
-                        if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro")))
+                        if ((Objects.equals(is_widget, "today")))
                             processResponse(context, today, countDate, appWidgetId, showDate);
 
                     } catch (JSONException e) {
@@ -126,7 +124,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
         text = context.getString(R.string.visitors_widget);
         if (Objects.equals(is_widget, "tic")) text = context.getString(R.string.tic_widget);
-        if ((Objects.equals(is_widget, "today")) && (BuildConfig.FLAVOR.equals("DVAdminPro"))) {
+        if ((Objects.equals(is_widget, "today")) ) {
             text = context.getString(R.string.today);
             res = res.replace("->", " ");
         }
@@ -141,8 +139,7 @@ public class WidgetProvider extends AppWidgetProvider {
         else
             views.setViewVisibility(R.id.date, View.VISIBLE);
 
-        if (BuildConfig.FLAVOR.equals("DVAdminPro"))
-            views.setViewVisibility(R.id.date, View.VISIBLE);
+       // views.setViewVisibility(R.id.date, View.VISIBLE);
 
         views.setTextViewText(R.id.date, date);
         views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context));
