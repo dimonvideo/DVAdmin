@@ -79,7 +79,7 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
         int width = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        if (width > 100) showDate = 1;
+        if (width > 50) showDate = 1;
         updateAppWidget(context, appWidgetId);
         Log.i("---", "Widget Resized: " + width);
     }
