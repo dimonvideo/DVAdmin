@@ -51,4 +51,7 @@
     <string name="dvclient">DVClient integration</string>
     <string name="dvclient_sum">chapters will open in dvclient app</string>
     <string name="func_header">Functions</string>
+    <string name="updating">Обновление...</string>
+    <string name="no_data">Нет данных</string>
+    <string name="cached_data_suffix">" (кэш)"</string>
 </resources>

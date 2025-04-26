@@ -1,7 +1,6 @@
 package dv.dimonvideo.dvadmin.util;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -132,11 +131,4 @@ public class AppController {
 
     // =============================================== put preferences ================================================================== //
 
-    public void putThemeLight() {
-        PreferenceManager.getDefaultSharedPreferences(mCtx).edit().putString("dvc_theme_list", "false").apply();
-    }
-
-    public void putVersionCode(int versionCode) {
-        PreferenceManager.getDefaultSharedPreferences(mCtx).edit().putInt("last_version_code", versionCode).apply();
-    }
 }

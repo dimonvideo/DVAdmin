@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -23,7 +24,9 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Objects;
 
+import dv.dimonvideo.dvadmin.databinding.SettingsActivityBinding;
 import dv.dimonvideo.dvadmin.util.WidgetProvider;
+
 
 public class SettingsActivity extends AppCompatActivity {
     private boolean doubleBackToExitPressedOnce = false;
@@ -32,19 +35,34 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adjustFontScale(getResources().getConfiguration());
-        setContentView(R.layout.settings_activity);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings, new SettingsFragment())
-                .commit();
+        SettingsActivityBinding binding = SettingsActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.settings, new SettingsFragment())
+                .commit();
+
+
+        OnBackPressedCallback onBackPressedCallback = getOnBackPressedCallback();
+
+        OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback);
+
+    }
+
+    @NonNull
+    private OnBackPressedCallback getOnBackPressedCallback() {
+
+
         // onBackPressed
         Intent intent = new Intent(this, MainActivity.class);
-        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        return new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
@@ -56,10 +74,6 @@ public class SettingsActivity extends AppCompatActivity {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
             }
         };
-
-        OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback);
-
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

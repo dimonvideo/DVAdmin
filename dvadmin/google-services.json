@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "50549051988",
+    "firebase_url": "https://dvadmin-5a6d2.firebaseio.com",
+    "project_id": "dvadmin-5a6d2",
+    "storage_bucket": "dvadmin-5a6d2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50549051988:android:a46a6e539a88fde4e7d3c1",
+        "android_client_info": {
+          "package_name": "dv.dimonvideo.dvadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "50549051988-ur369uouuvs3t3knpm6fg77g5c95p308.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dv.dimonvideo.dvadmin",
+            "certificate_hash": "928e7da65fdd07df354438a3b1cd5a48ef159b34"
+          }
+        },
+        {
+          "client_id": "50549051988-25h444d0hfuegqanka25vgg2ukomor7q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAultUYQvj2wBXOkw-DGeNIGBZRROM14jA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "50549051988-25h444d0hfuegqanka25vgg2ukomor7q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

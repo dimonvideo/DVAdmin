@@ -52,4 +52,7 @@
     <string name="dvclient">Интеграция с DVClient</string>
     <string name="dvclient_sum">ожидающие файлы будут открываться в клиенте сайта DVClient</string>
     <string name="func_header">Главное</string>
+    <string name="updating">Обновление...</string>
+    <string name="no_data">Нет данных</string>
+    <string name="cached_data_suffix">" (кэш)"</string>
 </resources>

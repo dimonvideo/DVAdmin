@@ -5,13 +5,13 @@ apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Android\\.dv.keystore\\beep_591977')
+            storeFile file('D:\\Android\\.dv.keystore\\beep_591977')
             storePassword '591977'
             keyAlias 'dimonvideo'
             keyPassword '591977'
         }
         release {
-            storeFile file('C:\\Android\\.dv.keystore\\beep_591977')
+            storeFile file('D:\\Android\\.dv.keystore\\beep_591977')
             storePassword '591977'
             keyAlias 'dimonvideo'
             keyPassword '591977'
@@ -21,9 +21,9 @@ android {
     defaultConfig {
         applicationId "dv.dimonvideo.dvadmin"
         minSdkVersion 23
-        targetSdkVersion 35
-        versionCode 522
-        versionName "6.3"
+        targetSdkVersion 36
+        versionCode 523
+        versionName "6.4"
         multiDexEnabled true
         setProperty("archivesBaseName", applicationId + "-v" + versionCode)
 
@@ -141,35 +141,38 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.android.volley:volley:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.firebase:firebase-messaging:24.1.0'
+    implementation 'com.google.firebase:firebase-messaging:24.1.1'
+    implementation 'androidx.work:work-runtime:2.10.1'
+    implementation "androidx.work:work-runtime:2.10.1"
+    implementation "com.google.guava:guava:33.3.1-android"
 
     // Google
     DVAdmin_GoogleImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:33.9.0'))
-    DVAdmin_GoogleImplementation('com.google.firebase:firebase-messaging:24.1.0')
+    DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
+    DVAdmin_GoogleImplementation('com.google.firebase:firebase-messaging:24.1.1')
 
     // RuStore
     DVAdmin_RuStoreImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_RuStoreImplementation(platform('com.google.firebase:firebase-bom:33.9.0'))
-    DVAdmin_RuStoreImplementation('com.google.firebase:firebase-messaging:24.1.0')
+    DVAdmin_RuStoreImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
+    DVAdmin_RuStoreImplementation('com.google.firebase:firebase-messaging:24.1.1')
 
     // NashStore
     DVAdmin_NashStoreImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:33.9.0'))
-    DVAdmin_NashStoreImplementation('com.google.firebase:firebase-messaging:24.1.0')
+    DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
+    DVAdmin_NashStoreImplementation('com.google.firebase:firebase-messaging:24.1.1')
 
     // Samsung
     DVAdmin_SamsungImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_SamsungImplementation(platform('com.google.firebase:firebase-bom:33.9.0'))
-    DVAdmin_SamsungImplementation('com.google.firebase:firebase-messaging:24.1.0')
+    DVAdmin_SamsungImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
+    DVAdmin_SamsungImplementation('com.google.firebase:firebase-messaging:24.1.1')
 
     // HUAWEI
     DVAdmin_HuaweiImplementation 'com.huawei.agconnect:agconnect-core:1.9.1.301'
-    DVAdmin_HuaweiImplementation 'com.huawei.hms:hianalytics:6.12.0.300'
+    DVAdmin_HuaweiImplementation 'com.huawei.hms:hianalytics:6.12.0.301'
     DVAdmin_HuaweiImplementation 'com.huawei.hms:push:6.11.0.300'
 }
 

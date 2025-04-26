@@ -6,16 +6,17 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import androidx.preference.PreferenceManager;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,129 +28,68 @@ import dv.dimonvideo.dvadmin.MainActivity;
 import dv.dimonvideo.dvadmin.R;
 
 public class WidgetProvider extends AppWidgetProvider {
-    String countDate, countTic, countVisitors, today, text;
-    String hostUrl = Config.HOST_URL;
-    String countUrl = Config.COUNT_URL;
-    private static final String ACTION_UPDATE = "android.appwidget.action.APPWIDGET_UPDATE";
-    int showDate = 0;
+    public static final String ACTION_UPDATE = "android.appwidget.action.APPWIDGET_UPDATE";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager widgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
             Bundle options = widgetManager.getAppWidgetOptions(appWidgetId);
             int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-            if (width > 100) showDate = 1;
-            updateAppWidget(context, appWidgetId);
-        }
-
-    }
-
-    public void updateAppWidget(Context context, int appWidgetId) {
-        sendRequest(context, appWidgetId);
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        super.onReceive(context, intent);
-
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        ComponentName myWidget = new ComponentName(context.getPackageName(), WidgetProvider.class.getName());
-        int[] widgetIds = appWidgetManager.getAppWidgetIds(myWidget);
-        String action = intent.getAction();
-        if (action != null && action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
-            this.onUpdate(context, AppWidgetManager.getInstance(context), widgetIds);
+            int showDate = width > 100 ? 1 : 0;
+            updateAppWidget(context, appWidgetId, showDate, true); // Показываем ProgressBar при инициализации
         }
     }
 
-    @Override
-    public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
-        Log.i("---", "App Widget Enabled");
-
-    }
-
-    @Override
-    public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
-        Log.i("---", "App Widget Disabled");
-
-    }
-
-    @Override
-    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-        int width = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        if (width > 50) showDate = 1;
-        updateAppWidget(context, appWidgetId);
-        Log.i("---", "Widget Resized: " + width);
-    }
-
-    public void sendRequest(Context context, int appWidgetId) {
-
-        String is_widget = AppController.getInstance(context).isWidget();
-
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, countUrl,
-                response -> {
-                    try {
-
-                        JSONObject jsonObject;
-                        jsonObject = new JSONObject(response);
-
-                        countTic = jsonObject.getString("tic");
-                        countVisitors = jsonObject.getString("visitors");
-                        today = jsonObject.getString("today");
-                        countDate = jsonObject.getString("date");
-
-                        processResponse(context, countVisitors, countDate, appWidgetId, showDate);
-                        if (Objects.equals(is_widget, "tic"))
-                            processResponse(context, countTic, countDate, appWidgetId, showDate);
-                        if ((Objects.equals(is_widget, "today")))
-                            processResponse(context, today, countDate, appWidgetId, showDate);
-
-                    } catch (JSONException e) {
-                        Toast.makeText(context, context.getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-                    }
-                }, error -> {
-
-        });
-
-        queue.add(stringRequest);
-
-    }
-
-    public void processResponse(Context context, String res, String date, int appWidgetId, int showDateSwitch) {
-
-        String is_widget = AppController.getInstance(context).isWidget();
-
-        text = context.getString(R.string.visitors_widget);
-        if (Objects.equals(is_widget, "tic")) text = context.getString(R.string.tic_widget);
-        if ((Objects.equals(is_widget, "today")) ) {
-            text = context.getString(R.string.today);
-            res = res.replace("->", " ");
-        }
-
-        Log.i("---", "showDateSwitch: " + showDateSwitch);
-        Log.i("---", "showDateSwitch: " + showDateSwitch);
-
+    public void updateAppWidget(Context context, int appWidgetId, int showDate, boolean showProgress) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-        views.setTextViewText(R.id.widget_list, res);
+        String isWidget = AppController.getInstance(context).isWidget();
+        String text = context.getString(R.string.visitors_widget);
+
+        if (Objects.equals(isWidget, "tic")) {
+            text = context.getString(R.string.tic_widget);
+        } else if (Objects.equals(isWidget, "today")) {
+            text = context.getString(R.string.today);
+        }
+
+        // Проверяем кэшированные данные
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String cachedData = prefs.getString("widget_data_" + appWidgetId, null);
+        String res = "";
+        String date = "";
+
+        if (cachedData != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(cachedData);
+                String countTic = jsonObject.getString("tic");
+                String countVisitors = jsonObject.getString("visitors");
+                String today = jsonObject.getString("today");
+                date = jsonObject.getString("date");
+
+                res = countVisitors;
+                if (Objects.equals(isWidget, "tic")) {
+                    res = countTic;
+                } else if (Objects.equals(isWidget, "today")) {
+                    res = today.replace("->", " ");
+                }
+            } catch (JSONException e) {
+                Log.e(Config.TAG, "Failed to parse cached data in WidgetProvider", e);
+                res = context.getString(R.string.error_network);
+            }
+        }
+
         views.setTextViewText(R.id.text, text);
-        if (showDateSwitch == 0) views.setViewVisibility(R.id.date, View.GONE);
-        else
-            views.setViewVisibility(R.id.date, View.VISIBLE);
-
-       // views.setViewVisibility(R.id.date, View.VISIBLE);
-
+        views.setTextViewText(R.id.widget_list, res);
         views.setTextViewText(R.id.date, date);
-        views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context));
+        views.setViewVisibility(R.id.date, showDate == 1 ? View.VISIBLE : View.GONE);
+        views.setViewVisibility(R.id.progress_bar, showProgress && res.isEmpty() ? View.VISIBLE : View.GONE);
+        views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context, appWidgetId));
 
         Intent intent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-        } else
-            pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ?
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE :
+                        PendingIntent.FLAG_UPDATE_CURRENT);
 
         views.setOnClickPendingIntent(R.id.text, pendingIntent);
         views.setOnClickPendingIntent(R.id.widget_list, pendingIntent);
@@ -157,11 +97,83 @@ public class WidgetProvider extends AppWidgetProvider {
         AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, views);
     }
 
-    private PendingIntent getPendingSelfIntent(Context context) {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        if (ACTION_UPDATE.equals(intent.getAction())) {
+            int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+            if (appWidgetId != -1) {
+                // Запускаем разовое обновление через WorkManager
+                Data data = new Data.Builder()
+                        .putInt(WidgetUpdateWorker.KEY_WIDGET_ID, appWidgetId)
+                        .build();
+                OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WidgetUpdateWorker.class)
+                        .setInputData(data)
+                        .addTag(WidgetUpdateWorker.TAG)
+                        .build();
+                WorkManager.getInstance(context).enqueue(updateRequest);
 
-        Intent intent = new Intent(context, getClass());
-        intent.setAction(WidgetProvider.ACTION_UPDATE);
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                // Показываем ProgressBar при нажатии на refresh_button
+                Bundle options = AppWidgetManager.getInstance(context).getAppWidgetOptions(appWidgetId);
+                int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+                int showDate = width > 100 ? 1 : 0;
+                updateAppWidget(context, appWidgetId, showDate, true);
+            } else {
+                // Обновляем все виджеты
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                ComponentName myWidget = new ComponentName(context, WidgetProvider.class);
+                int[] widgetIds = appWidgetManager.getAppWidgetIds(myWidget);
+                onUpdate(context, appWidgetManager, widgetIds);
+            }
+        }
+    }
 
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+        int width = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        int newShowDate = width > 100 ? 1 : 0;
+        updateAppWidget(context, appWidgetId, newShowDate, false); // Не показываем ProgressBar при изменении размера
+        Log.i(Config.TAG, "Widget Resized: " + width);
+    }
+
+    public void processResponse(Context context, String res, String date, int appWidgetId, int showDate) {
+        String isWidget = AppController.getInstance(context).isWidget();
+        String text = context.getString(R.string.visitors_widget);
+
+        if (Objects.equals(isWidget, "tic")) {
+            text = context.getString(R.string.tic_widget);
+        } else if (Objects.equals(isWidget, "today")) {
+            text = context.getString(R.string.today);
+            res = res.replace("->", " ");
+        }
+
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        views.setTextViewText(R.id.widget_list, res);
+        views.setTextViewText(R.id.text, text);
+        views.setTextViewText(R.id.date, date);
+        views.setViewVisibility(R.id.date, showDate == 1 ? View.VISIBLE : View.GONE);
+        views.setViewVisibility(R.id.progress_bar, View.GONE); // Скрываем ProgressBar после обновления
+        views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context, appWidgetId));
+
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ?
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE :
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        views.setOnClickPendingIntent(R.id.text, pendingIntent);
+        views.setOnClickPendingIntent(R.id.widget_list, pendingIntent);
+
+        AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, views);
+    }
+
+    private PendingIntent getPendingSelfIntent(Context context, int appWidgetId) {
+        Intent intent = new Intent(context, WidgetProvider.class);
+        intent.setAction(ACTION_UPDATE);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        return PendingIntent.getBroadcast(
+                context, appWidgetId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
 }

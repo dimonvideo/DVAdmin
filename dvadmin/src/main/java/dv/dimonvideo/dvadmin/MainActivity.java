@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,48 +35,50 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
-import com.android.volley.Request;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.toolbox.StringRequest;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import dv.dimonvideo.dvadmin.adapter.Adapter;
 import dv.dimonvideo.dvadmin.databinding.LayoutBinding;
+import dv.dimonvideo.dvadmin.model.MainViewModel;
 import dv.dimonvideo.dvadmin.util.Analytics;
 import dv.dimonvideo.dvadmin.util.AppController;
 import dv.dimonvideo.dvadmin.util.ProgressHelper;
 import dv.dimonvideo.dvadmin.util.RequestPermissionHandler;
 import dv.dimonvideo.dvadmin.util.WidgetProvider;
+import dv.dimonvideo.dvadmin.util.WidgetUpdateWorker;
 
 public class MainActivity extends AppCompatActivity implements Adapter.ItemClickListener {
     private Adapter adapter;
-    private String countDate, countUploader, countVuploader, countMuzon, countUsernews, countGallery, countDevices, countForum, countTic, countVisitors, countSpace, countAfile, countAforum, today;
     private RequestPermissionHandler mRequestPermissionHandler;
     private boolean doubleBackToExitPressedOnce = false;
-    public static LayoutBinding binding;
+    private LayoutBinding binding; // Убрано static
     private RecyclerView recyclerView;
     private Toolbar toolbar;
+    private MainViewModel viewModel;
+    private final Handler backPressHandler = new Handler(Looper.getMainLooper());
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(); // Для асинхронных задач
+    private static final String PREF_NAMES_KEY = "cached_names";
+    private static final String PREF_COUNTS_KEY = "cached_counts";
+    private static final String PREF_SUBTITLE_KEY = "cached_subtitle";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         final String is_dark = AppController.getInstance(this).isDark();
         if (Objects.equals(is_dark, "true"))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -86,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         try {
             Analytics.init(this);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            Log.e(Config.TAG, "Failed to initialize Analytics", e);
         }
 
         binding = LayoutBinding.inflate(getLayoutInflater());
@@ -94,53 +99,52 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         adjustFontScale(getResources().getConfiguration());
 
-
         toolbar = binding.toolbar;
         toolbar.setTitle(getResources().getString(R.string.app_name));
-        recyclerView = binding.rv;
-
         setSupportActionBar(toolbar);
+
+        recyclerView = binding.rv;
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
-        set_adapter();
+
         SwipeRefreshLayout swipeRefreshLayout = binding.swipeLayout;
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            recreate();
+            viewModel.fetchData(MainActivity.this);
             swipeRefreshLayout.setRefreshing(false);
-
         });
+
 
         // shortcuts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+            try {
+                ShortcutInfo logUploaderShortcut = new ShortcutInfo.Builder(this, "shortcut_visit_1")
+                        .setShortLabel(getString(R.string.action_admin_upl))
+                        .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher))
+                        .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(Config.UPL_URL)))
+                        .build();
 
-            ShortcutManager shortcutManager = (ShortcutManager) getSystemService(SHORTCUT_SERVICE);
+                ShortcutInfo logShortcut = new ShortcutInfo.Builder(this, "shortcut_visit")
+                        .setShortLabel(getString(R.string.action_admin))
+                        .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher))
+                        .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(Config.ADMIN_URL)))
+                        .build();
 
-            ShortcutInfo logUploaderShortcut = new ShortcutInfo.Builder(this, "shortcut_visit_1")
-                    .setShortLabel(getString(R.string.action_admin_upl))
-                    .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher))
-                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(Config.UPL_URL)))
-                    .build();
-
-            ShortcutInfo logShortcut = new ShortcutInfo.Builder(this, "shortcut_visit")
-                    .setShortLabel(getString(R.string.action_admin))
-                    .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher))
-                    .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(Config.ADMIN_URL)))
-                    .build();
-
-            new Thread(() -> shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut))).start();
-
+                // Выполняем setDynamicShortcuts в рабочем потоке
+                executorService.execute(() -> {
+                    try {
+                        shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut));
+                        Log.d(Config.TAG, "Dynamic shortcuts set successfully");
+                    } catch (Exception e) {
+                        Log.e(Config.TAG, "Failed to set dynamic shortcuts", e);
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(Config.TAG, "Failed to prepare dynamic shortcuts", e);
+            }
         }
 
-        // обновление виджета
-        Intent intent = new Intent(this, WidgetProvider.class);
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-
-        int[] ids = AppWidgetManager.getInstance(getApplication())
-                .getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        sendBroadcast(intent);
-
-        if ((Build.VERSION.SDK_INT >= 33)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mRequestPermissionHandler = new RequestPermissionHandler();
             handlePerm();
         }
@@ -153,125 +157,89 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                     finish();
                     return;
                 }
-                MainActivity.this.doubleBackToExitPressedOnce = true;
+                doubleBackToExitPressedOnce = true;
                 Toast.makeText(getApplicationContext(), getString(R.string.press_twice), Toast.LENGTH_SHORT).show();
-                new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
+                backPressHandler.postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
             }
         };
 
         OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback);
+
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        setupRecyclerView();
+        viewModel.fetchData(this);
+
+        scheduleWidgetUpdate();
+        triggerImmediateWidgetUpdate();
     }
 
+    private void scheduleWidgetUpdate() {
+        PeriodicWorkRequest updateRequest = new PeriodicWorkRequest.Builder(
+                WidgetUpdateWorker.class, 15, TimeUnit.MINUTES)
+                .addTag(WidgetUpdateWorker.TAG)
+                .build();
 
-    // получение данных
-    private void set_adapter() {
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                WidgetUpdateWorker.TAG,
+                ExistingPeriodicWorkPolicy.KEEP,
+                updateRequest);
+    }
 
-        final boolean is_uploader = AppController.getInstance(this).is_uploader();
-        final boolean is_vuploader = AppController.getInstance(this).is_vuploader();
-        final boolean is_muzon = AppController.getInstance(this).is_muzon();
-        final boolean is_usernews = AppController.getInstance(this).is_usernews();
-        final boolean is_gallery = AppController.getInstance(this).is_gallery();
-        final boolean is_devices = AppController.getInstance(this).is_devices();
-        final boolean is_forum = AppController.getInstance(this).is_forum();
-        final boolean is_abuse_file = AppController.getInstance(this).is_abuse_file();
-        final boolean is_abuse_forum = AppController.getInstance(this).is_abuse_forum();
-        final boolean is_space = AppController.getInstance(this).is_space();
-        final boolean is_visitors = AppController.getInstance(this).is_visitors();
+    private void triggerImmediateWidgetUpdate() {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        ComponentName widgetComponent = new ComponentName(this, WidgetProvider.class);
+        int[] widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent);
 
-        final ArrayList<String> count = new ArrayList<>();
+        if (widgetIds.length == 0) {
+            Log.d(Config.TAG, "No widgets found to update");
+            return;
+        }
 
-        final ArrayList<String> Names = new ArrayList<>();
-        if (BuildConfig.GOOGLE) Names.add(getString(R.string.today));
-        if (is_uploader) Names.add(getString(R.string.uploader));
-        if (is_vuploader) Names.add(getString(R.string.vuploader));
-        if (is_muzon) Names.add(getString(R.string.muzon));
-        if (is_usernews) Names.add(getString(R.string.usernews));
-        if (is_gallery) Names.add(getString(R.string.gallery));
-        if (is_devices) Names.add(getString(R.string.devices));
-        if (is_forum) Names.add(getString(R.string.forum));
-        if (is_abuse_file) Names.add(getString(R.string.abuse_file));
-        if (is_abuse_forum) Names.add(getString(R.string.abuse_forum));
-        if (is_space) Names.add(getString(R.string.space));
-        if (is_visitors) Names.add(getString(R.string.visitors));
+        for (int appWidgetId : widgetIds) {
+            Intent intent = new Intent(this, WidgetProvider.class);
+            intent.setAction(WidgetProvider.ACTION_UPDATE);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            sendBroadcast(intent);
 
-        Names.add(getString(R.string.tic));
+            Data data = new Data.Builder()
+                    .putInt(WidgetUpdateWorker.KEY_WIDGET_ID, appWidgetId)
+                    .build();
+            OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WidgetUpdateWorker.class)
+                    .setInputData(data)
+                    .addTag(WidgetUpdateWorker.TAG)
+                    .build();
+            WorkManager.getInstance(this).enqueue(updateRequest);
+        }
+    }
 
-        ProgressHelper.showDialog(this, getString(R.string.please_wait));
+    private void setupRecyclerView() {
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+        dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, R.drawable.divider)));
+        recyclerView.addItemDecoration(dividerItemDecoration);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.COUNT_URL,
-                response -> {
-                    try {
-
-                        JSONObject jsonObject;
-                        jsonObject = new JSONObject(response);
-
-                        countUploader = jsonObject.getString("uploader");
-                        countVuploader = jsonObject.getString("vuploader");
-                        countMuzon = jsonObject.getString("muzon");
-                        countUsernews = jsonObject.getString("usernews");
-                        countGallery = jsonObject.getString("gallery");
-                        countDevices = jsonObject.getString("devices");
-                        countForum = jsonObject.getString("forum");
-                        countAfile = jsonObject.getString("abuse_file");
-                        countAforum = jsonObject.getString("abuse_forum");
-                        countSpace = jsonObject.getString("space");
-                        countTic = jsonObject.getString("tic");
-                        countDate = jsonObject.getString("date");
-                        countVisitors = jsonObject.getString("visitors");
-                        today = jsonObject.getString("today");
-
-                        count.clear();
-                        if (BuildConfig.GOOGLE) count.add(today);
-                        if (is_uploader) count.add(countUploader);
-                        if (is_vuploader) count.add(countVuploader);
-                        if (is_muzon) count.add(countMuzon);
-                        if (is_usernews) count.add(countUsernews);
-                        if (is_gallery) count.add(countGallery);
-                        if (is_devices) count.add(countDevices);
-                        if (is_forum) count.add(countForum);
-                        if (is_abuse_file) count.add(countAfile);
-                        if (is_abuse_forum) count.add(countAforum);
-                        if (is_space) count.add(countSpace);
-                        if (is_visitors) count.add(countVisitors);
-                        count.add(countTic);
-
-                        toolbar.setSubtitle(getString(R.string.actually) + countDate);
-
-                        recyclerView.setHasFixedSize(true);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-                        dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(MainActivity.this, R.drawable.divider)));
-                        recyclerView.addItemDecoration(dividerItemDecoration);
-                        adapter = new Adapter(this, Names, count);
-                        adapter.setClickListener(MainActivity.this);
-                        recyclerView.setAdapter(adapter);
-
-                        if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
-
-                    } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-                    }
-
-                }, error -> {
-
-            if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
-
-            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-            } else if (error instanceof AuthFailureError) {
-                Toast.makeText(getApplicationContext(), getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
-            } else if (error instanceof ServerError) {
-                Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
-            } else if (error instanceof NetworkError) {
-                Toast.makeText(getApplicationContext(), getString(R.string.error_network), Toast.LENGTH_LONG).show();
-            } else if (error instanceof ParseError) {
-                Toast.makeText(getApplicationContext(), getString(R.string.error_server), Toast.LENGTH_LONG).show();
+        viewModel.getCombinedData().observe(this, pair -> {
+            if (pair != null && pair.first != null && pair.second != null) {
+                if (pair.first.isEmpty() && pair.second.isEmpty()) {
+                    recyclerView.setVisibility(View.GONE);
+                    binding.emptyView.setVisibility(View.VISIBLE);
+                } else {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    binding.emptyView.setVisibility(View.GONE);
+                    adapter = new Adapter(this, pair.first, pair.second);
+                    adapter.setClickListener(MainActivity.this);
+                    recyclerView.setAdapter(adapter);
+                }
             }
         });
 
-        AppController.getInstance(this).addToRequestQueue(stringRequest, 6000);
-
+        viewModel.getSubtitle().observe(this, subtitle -> {
+            if (toolbar != null) {
+                toolbar.setSubtitle(subtitle);
+            }
+        });
     }
 
     @Override
@@ -282,279 +250,248 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
 
-        // settings
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-
             startActivity(i);
-
             return true;
         }
-        // refresh
         if (id == R.id.action_refresh) {
-            recreate();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove(PREF_NAMES_KEY);
+            editor.remove(PREF_COUNTS_KEY);
+            editor.remove(PREF_SUBTITLE_KEY);
+            editor.apply();
+            viewModel.fetchData(MainActivity.this);
+            return true;
         }
-        // birthdays
         if (id == R.id.action_bd) {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(getString(R.string.action_bd));
-
             WebView wv = new WebView(this);
             wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=9");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     view.loadUrl(url);
-
                     return true;
                 }
             });
-
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id12) -> dialog.dismiss());
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id12) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
             alert.show();
+            return true;
         }
-        // who added files now
         if (id == R.id.action_whoaddedfiles) {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(getString(R.string.action_whoaddedfiles));
-
             WebView wv = new WebView(this);
             wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=12");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     view.loadUrl(url);
-
                     return true;
                 }
             });
-
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id13) -> dialog.dismiss());
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id13) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
             alert.show();
+            return true;
         }
-        // last ban
         if (id == R.id.action_lastban) {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(getString(R.string.action_lastbans));
-
             WebView wv = new WebView(this);
-
             wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=14");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     view.loadUrl(url);
-
                     return true;
                 }
             });
-
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id14) -> dialog.dismiss());
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id14) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
             alert.show();
-
+            return true;
         }
-        // last del uploader
         if (id == R.id.action_lastdel) {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(getString(R.string.action_lastdel));
-
             WebView wv = new WebView(this);
-
             wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=15");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     view.loadUrl(url);
-
                     return true;
                 }
             });
-
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id15) -> dialog.dismiss());
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id15) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
             alert.show();
-
+            return true;
         }
-        // last del forum
         if (id == R.id.action_lasttopics) {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(getString(R.string.action_lasttopics));
-
             WebView wv = new WebView(this);
-
             wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=11");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     view.loadUrl(url);
-
                     return true;
                 }
             });
-
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id16) -> dialog.dismiss());
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id16) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
             alert.show();
-
+            return true;
         }
-        // last del com
         if (id == R.id.action_lastcom) {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(getString(R.string.action_lastcom));
-
             WebView wv = new WebView(this);
-
             wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=13");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     view.loadUrl(url);
-
                     return true;
                 }
             });
-
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id1) -> dialog.dismiss());
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, id1) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
             alert.show();
-
+            return true;
         }
-        // other apps
         if (id == R.id.action_others) {
-
             String url = "https://play.google.com/store/apps/dev?id=6091758746633814135";
             if (!BuildConfig.GOOGLE) url = Config.BASE_URL + "/android.html";
-
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    url));
-
-
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             try {
                 startActivity(browserIntent);
-            } catch (Throwable ignored) {
+            } catch (Exception e) {
+                Log.e(Config.TAG, "Failed to open browser", e);
+                Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
             }
+            return true;
         }
-        // feedback
         if (id == R.id.action_feedback) {
-
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.fromParts("mailto", getString(R.string.app_mail), null));
             intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " Feedback");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
             try {
                 startActivity(intent);
-            } catch (Throwable ignored) {
+            } catch (Exception e) {
+                Log.e(Config.TAG, "Failed to open email client", e);
+                Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
             }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onItemClick(View view, int position) {
+        String item = adapter.getItem(position);
+        String url = null;
+        String actionAdmin = null;
 
-        Intent browserIntent = null;
-
-        if (adapter.getItem(position).equals(getString(R.string.uploader))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Config.BASE_URL + "/logs/uploader/0"));
-
-            if (AppController.getInstance(this).is_client()) {
-                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
-                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                browserIntent.putExtra("action_admin", "uploader");
-            }
-
-        } else if (adapter.getItem(position).equals(getString(R.string.vuploader))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/logs/vuploader/0"));
-
-            if (AppController.getInstance(this).is_client()) {
-                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
-                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                browserIntent.putExtra("action_admin", "vuploader");
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.muzon))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/logs/muzon/0"));
-            if (AppController.getInstance(this).is_client()) {
-                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
-                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                browserIntent.putExtra("action_admin", "muzon");
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.usernews))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/logs/usernews/0"));
-            if (AppController.getInstance(this).is_client()) {
-                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
-                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                browserIntent.putExtra("action_admin", "usernews");
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.gallery))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/logs/gallery/0"));
-            if (AppController.getInstance(this).is_client()) {
-                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
-                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                browserIntent.putExtra("action_admin", "gallery");
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.devices))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/logs/device/0"));
-            if (AppController.getInstance(this).is_client()) {
-                browserIntent = new Intent("com.dimonvideo.client.dvadmin");
-                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                browserIntent.putExtra("action_admin", "device");
-            }
-        } else if (adapter.getItem(position).equals(getString(R.string.forum))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/fadmin"));
-
-        } else if (adapter.getItem(position).equals(getString(R.string.abuse_file))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/forum/topic_1728146352"));
-
-
-        } else if (adapter.getItem(position).equals(getString(R.string.abuse_forum))) {
-            browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    Config.BASE_URL + "/forum/topic_1728146368"));
-
+        if (item.equals(getString(R.string.uploader))) {
+            url = Config.BASE_URL + "/logs/uploader/0";
+            actionAdmin = "uploader";
+        } else if (item.equals(getString(R.string.vuploader))) {
+            url = Config.BASE_URL + "/logs/vuploader/0";
+            actionAdmin = "vuploader";
+        } else if (item.equals(getString(R.string.muzon))) {
+            url = Config.BASE_URL + "/logs/muzon/0";
+            actionAdmin = "muzon";
+        } else if (item.equals(getString(R.string.usernews))) {
+            url = Config.BASE_URL + "/logs/usernews/0";
+            actionAdmin = "usernews";
+        } else if (item.equals(getString(R.string.gallery))) {
+            url = Config.BASE_URL + "/logs/gallery/0";
+            actionAdmin = "gallery";
+        } else if (item.equals(getString(R.string.devices))) {
+            url = Config.BASE_URL + "/logs/device/0";
+            actionAdmin = "device";
+        } else if (item.equals(getString(R.string.forum))) {
+            url = Config.BASE_URL + "/fadmin";
+        } else if (item.equals(getString(R.string.abuse_file))) {
+            url = Config.BASE_URL + "/forum/topic_1728146352";
+        } else if (item.equals(getString(R.string.abuse_forum))) {
+            url = Config.BASE_URL + "/forum/topic_1728146368";
         }
 
+        if (startActivityForItem(url, actionAdmin)) {
+            Toast.makeText(this, item, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean startActivityForItem(String url, String actionAdmin) {
+        if (url == null && actionAdmin == null) {
+            Log.e(Config.TAG, "Invalid URL and actionAdmin");
+            Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        Intent intent;
+        if (AppController.getInstance(this).is_client() && actionAdmin != null) {
+            intent = new Intent("com.dimonvideo.client.dvadmin");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("action_admin", actionAdmin);
+        } else {
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        }
         try {
-            startActivity(browserIntent);
-        } catch (Throwable ignored) {
+            startActivity(intent);
+            return true;
+        } catch (Exception e) {
+            Log.e(Config.TAG, "Failed to start activity", e);
+            Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
+            return false;
         }
-
-        Toast.makeText(this, adapter.getItem(position), Toast.LENGTH_SHORT).show();
-        finish();
-
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
+        backPressHandler.removeCallbacksAndMessages(null);
         if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
+        executorService.shutdown(); // Завершаем ExecutorService
+        binding = null; // Очищаем binding
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
     }
 
@@ -563,7 +500,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         configuration.fontScale = Float.parseFloat(Objects.requireNonNull(sharedPrefs.getString("dvc_scale", "1.0f")));
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        assert wm != null;
+        if (wm == null) {
+            Log.e(Config.TAG, "WindowManager is null");
+            return;
+        }
         wm.getDefaultDisplay().getMetrics(metrics);
         metrics.scaledDensity = configuration.fontScale * metrics.density;
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
@@ -571,11 +511,16 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void handlePerm() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         mRequestPermissionHandler.requestPermission(this, new String[]{
                 Manifest.permission.POST_NOTIFICATIONS
         }, 123, new RequestPermissionHandler.RequestPermissionListener() {
             @Override
             public void onSuccess() {
+                Log.d(Config.TAG, "Notification permission granted");
             }
 
             @Override
@@ -584,5 +529,4 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             }
         });
     }
-
 }

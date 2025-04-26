@@ -1,79 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:paddingTop="3dp"
-    android:layout_height="match_parent">
+    android:padding="4dp">
 
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentStart="true"
+        android:contentDescription="@string/app_name"
+        android:src="@mipmap/ic_launcher" />
 
-            <ImageView
-                android:id="@+id/app_icon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="start"
-                android:background="@mipmap/ic_launcher"
-                android:contentDescription="@string/app_name"
+    <ImageButton
+        android:id="@+id/refresh_button"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/refresh"
+        android:src="@android:drawable/stat_notify_sync" />
 
-                />
-            <ImageButton
-                android:id="@+id/refresh_button"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="20dp"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/date"
-                android:layout_height="20dp"
-                android:contentDescription="@string/refresh"
-                android:src="@android:drawable/stat_notify_sync" />
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/app_icon"
+        android:layout_marginTop="4dp"
+        android:gravity="center_horizontal"
+        android:maxLines="1"
+        android:paddingHorizontal="5dp"
+        android:text="@string/visitors_widget"
+        android:textColor="@color/date"
+        android:textSize="11sp" />
 
-        <TextView
-            android:id="@+id/text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/app_icon"
-            android:layout_gravity="center_horizontal|center_vertical"
-            android:gravity="center_horizontal|center_vertical"
-            android:textSize="10sp"
-            android:padding="5dp"
-            android:text="---"
-            android:maxLines="1"
-            android:textColor="@color/date"
-            >
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_below="@id/text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
-        </TextView>
-        <TextView
-            android:id="@+id/widget_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/text"
-            android:layout_gravity="center_horizontal|center_vertical"
-            android:gravity="center_horizontal|center_vertical"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:paddingTop="5dp"
-            android:text="---"
-            android:maxLines="2"
-            android:textColor="@android:color/white"
-            >
+    <TextView
+        android:id="@+id/widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:maxLines="2"
+        android:paddingHorizontal="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
-        </TextView>
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/widget_list"
-            android:layout_gravity="end"
-            android:gravity="end"
-            android:textSize="11sp"
-            android:textStyle="normal"
-            android:padding="5dp"
-            android:textColor="@color/date"
-            android:text="---"
-            android:maxLines="1"
-            >
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/widget_list"
+        android:layout_marginTop="4dp"
+        android:gravity="end"
+        android:maxLines="1"
+        android:padding="5dp"
+        android:textColor="@color/date"
+        android:textSize="11sp" />
 
-        </TextView>
-
-    </RelativeLayout>
-
-
-
+</RelativeLayout>
