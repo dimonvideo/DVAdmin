@@ -48,30 +48,26 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(R.id.settings, new SettingsFragment())
                 .commit();
 
-
         OnBackPressedCallback onBackPressedCallback = getOnBackPressedCallback();
-
         OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback);
-
     }
 
     @NonNull
     private OnBackPressedCallback getOnBackPressedCallback() {
-
-
-        // onBackPressed
-        Intent intent = new Intent(this, MainActivity.class);
         return new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
+                    // Устанавливаем результат и завершаем активность
+                    Intent intent = new Intent();
+                    setResult(RESULT_OK, intent);
                     finish();
-                    startActivity(intent);
+                } else {
+                    doubleBackToExitPressedOnce = true;
+                    Toast.makeText(getApplicationContext(), getString(R.string.press_twice), Toast.LENGTH_SHORT).show();
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
                 }
-                SettingsActivity.this.doubleBackToExitPressedOnce = true;
-                Toast.makeText(getApplicationContext(), getString(R.string.press_twice), Toast.LENGTH_SHORT).show();
-                new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
             }
         };
     }

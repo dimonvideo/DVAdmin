@@ -17,17 +17,17 @@ import androidx.preference.PreferenceManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
 
 import java.util.Objects;
 
 import dv.dimonvideo.dvadmin.Config;
 import dv.dimonvideo.dvadmin.MainActivity;
 import dv.dimonvideo.dvadmin.R;
+import dv.dimonvideo.dvadmin.model.ApiResponse;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class WidgetUpdateWorker extends Worker {
     public static final String TAG = "WidgetUpdateWorker";
@@ -61,54 +61,34 @@ public class WidgetUpdateWorker extends Worker {
     }
 
     private void fetchDataAndUpdateWidget(Context context, int appWidgetId) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        long lastUpdate = prefs.getLong("last_update_" + appWidgetId, 0);
-        long currentTime = System.currentTimeMillis();
+        ApiService apiService = AppController.getInstance(context).getApiService();
 
-        // Ограничиваем частоту запросов (минимум 5 минут)
-        if (currentTime - lastUpdate < 5 * 60 * 1000) {
-            String cachedData = prefs.getString("widget_data_" + appWidgetId, null);
-            if (cachedData != null) {
-                try {
-                    JSONObject jsonObject = new JSONObject(cachedData);
-                    String countTic = jsonObject.getString("tic");
-                    String countVisitors = jsonObject.getString("visitors");
-                    String today = jsonObject.getString("today");
-                    String countDate = jsonObject.getString("date");
-                    updateWidgetFromCache(context, appWidgetId, countTic, countVisitors, today, countDate);
-                } catch (JSONException e) {
-                    Log.e(Config.TAG, "Failed to parse cached data", e);
+        apiService.getCounts().enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+
+                    // Сохранение в кэш
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                    prefs.edit()
+                            .putString("widget_data_" + appWidgetId, new Gson().toJson(apiResponse))
+                            .putLong("last_update_" + appWidgetId, System.currentTimeMillis())
+                            .apply();
+
+                    updateWidgetFromCache(context, appWidgetId, apiResponse.getTic(), apiResponse.getVisitors(), apiResponse.getToday(), apiResponse.getDate());
+                } else {
+                    Log.e(Config.TAG, "Response error: " + response.message());
+                    updateWidgetWithError(context, appWidgetId);
                 }
-                return;
             }
-        }
 
-        // Выполняем сетевой запрос
-        String isWidget = AppController.getInstance(context).isWidget();
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.COUNT_URL,
-                response -> {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        // Сохраняем в кэш
-                        prefs.edit()
-                                .putString("widget_data_" + appWidgetId, response)
-                                .putLong("last_update_" + appWidgetId, currentTime)
-                                .apply();
-                        String countTic = jsonObject.getString("tic");
-                        String countVisitors = jsonObject.getString("visitors");
-                        String today = jsonObject.getString("today");
-                        String countDate = jsonObject.getString("date");
-                        updateWidgetFromCache(context, appWidgetId, countTic, countVisitors, today, countDate);
-                    } catch (JSONException e) {
-                        Log.e(Config.TAG, "JSON parsing error in WidgetUpdateWorker", e);
-                        updateWidgetWithError(context, appWidgetId);
-                    }
-                }, error -> {
-            Log.e(Config.TAG, "Network error in WidgetUpdateWorker", error);
-            updateWidgetWithError(context, appWidgetId);
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                Log.e(Config.TAG, "Network error", t);
+                updateWidgetWithError(context, appWidgetId);
+            }
         });
-
-        AppController.getInstance(context).addToRequestQueue(stringRequest, 15000);
     }
 
     private void updateWidgetFromCache(Context context, int appWidgetId, String countTic, String countVisitors, String today, String countDate) {

@@ -4,18 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.preference.PreferenceManager;
 
-import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
-
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +20,20 @@ import java.util.Objects;
 import dv.dimonvideo.dvadmin.BuildConfig;
 import dv.dimonvideo.dvadmin.Config;
 import dv.dimonvideo.dvadmin.R;
+import dv.dimonvideo.dvadmin.util.ApiService;
 import dv.dimonvideo.dvadmin.util.AppController;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class MainViewModel extends ViewModel {
     private final MutableLiveData<List<String>> countsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<String>> namesLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> subtitleLiveData = new MutableLiveData<>();
     private final MediatorLiveData<Pair<List<String>, List<String>>> combinedData = new MediatorLiveData<>();
-    private AppController controller;
     private SharedPreferences prefs;
+    private AppController controller;
 
     private static final String PREF_NAMES_KEY = "cached_names";
     private static final String PREF_COUNTS_KEY = "cached_counts";
@@ -46,16 +47,22 @@ public class MainViewModel extends ViewModel {
     }
 
     public void fetchData(Context context) {
+        controller = AppController.getInstance(context);
+        ApiService apiService = controller.getApiService();
+
         // Инициализация SharedPreferences
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (prefs == null) {
+            prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        }
+        apiService.getCounts().enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    List<String> counts = new ArrayList<>();
+                    List<String> names = new ArrayList<>();
 
-        // Загружаем кэшированные данные при старте
-        loadCachedData(context);
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.COUNT_URL,
-                response -> {
-                    controller = AppController.getInstance(context);
-
+                    // Получаем настройки пользователя
                     final boolean is_uploader = controller.is_uploader();
                     final boolean is_vuploader = controller.is_vuploader();
                     final boolean is_muzon = controller.is_muzon();
@@ -68,80 +75,77 @@ public class MainViewModel extends ViewModel {
                     final boolean is_space = controller.is_space();
                     final boolean is_visitors = controller.is_visitors();
 
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        List<String> counts = new ArrayList<>();
-                        List<String> names = new ArrayList<>();
-
-                        // Заполнение списков
-                        if (BuildConfig.GOOGLE) {
-                            counts.add(jsonObject.getString(Config.JSON_TODAY));
-                            names.add(context.getString(R.string.today));
-                        }
-                        if (is_uploader) {
-                            counts.add(jsonObject.getString(Config.JSON_UPLOADER));
-                            names.add(context.getString(R.string.uploader));
-                        }
-                        if (is_vuploader) {
-                            counts.add(jsonObject.getString(Config.JSON_VUPLOADER));
-                            names.add(context.getString(R.string.vuploader));
-                        }
-                        if (is_muzon) {
-                            counts.add(jsonObject.getString(Config.JSON_MUZON));
-                            names.add(context.getString(R.string.muzon));
-                        }
-                        if (is_usernews) {
-                            counts.add(jsonObject.getString(Config.JSON_USERNEWS));
-                            names.add(context.getString(R.string.usernews));
-                        }
-                        if (is_gallery) {
-                            counts.add(jsonObject.getString(Config.JSON_GALLERY));
-                            names.add(context.getString(R.string.gallery));
-                        }
-                        if (is_devices) {
-                            counts.add(jsonObject.getString(Config.JSON_DEVICES));
-                            names.add(context.getString(R.string.devices));
-                        }
-                        if (is_forum) {
-                            counts.add(jsonObject.getString(Config.JSON_FORUM));
-                            names.add(context.getString(R.string.forum));
-                        }
-                        if (is_abuse_file) {
-                            counts.add(jsonObject.getString(Config.JSON_ABUSE_FILE));
-                            names.add(context.getString(R.string.abuse_file));
-                        }
-                        if (is_abuse_forum) {
-                            counts.add(jsonObject.getString(Config.JSON_ABUSE_FORUM));
-                            names.add(context.getString(R.string.abuse_forum));
-                        }
-                        if (is_space) {
-                            counts.add(jsonObject.getString(Config.JSON_SPACE));
-                            names.add(context.getString(R.string.space));
-                        }
-                        if (is_visitors) {
-                            counts.add(jsonObject.getString(Config.JSON_VISITORS));
-                            names.add(context.getString(R.string.visitors));
-                        }
-                        counts.add(jsonObject.getString(Config.JSON_TIC));
-                        names.add(context.getString(R.string.tic));
-
-                        // Сохраняем данные в кэш
-                        saveToCache(names, counts, context.getString(R.string.actually) + jsonObject.getString(Config.JSON_DATE));
-
-                        // Обновляем LiveData
-                        countsLiveData.setValue(counts);
-                        namesLiveData.setValue(names);
-                        subtitleLiveData.setValue(context.getString(R.string.actually) + jsonObject.getString(Config.JSON_DATE));
-                    } catch (JSONException e) {
-                        Log.e(Config.TAG, "JSON parsing error", e);
-                        loadCachedData(context); // Загружаем кэшированные данные при ошибке
+                    // Заполняем списки на основе условий
+                    if (BuildConfig.GOOGLE) {
+                        counts.add(apiResponse.getToday());
+                        names.add(context.getString(R.string.today));
                     }
-                }, error -> {
-            Log.e(Config.TAG, "Network error", error);
-            loadCachedData(context); // Загружаем кэшированные данные при сетевой ошибке
-        });
+                    if (is_uploader) {
+                        counts.add(apiResponse.getUploader());
+                        names.add(context.getString(R.string.uploader));
+                    }
+                    if (is_vuploader) {
+                        counts.add(apiResponse.getVuploader());
+                        names.add(context.getString(R.string.vuploader));
+                    }
+                    if (is_muzon) {
+                        counts.add(apiResponse.getMuzon());
+                        names.add(context.getString(R.string.muzon));
+                    }
+                    if (is_usernews) {
+                        counts.add(apiResponse.getUsernews());
+                        names.add(context.getString(R.string.usernews));
+                    }
+                    if (is_gallery) {
+                        counts.add(apiResponse.getGallery());
+                        names.add(context.getString(R.string.gallery));
+                    }
+                    if (is_devices) {
+                        counts.add(apiResponse.getDevices());
+                        names.add(context.getString(R.string.devices));
+                    }
+                    if (is_forum) {
+                        counts.add(apiResponse.getForum());
+                        names.add(context.getString(R.string.forum));
+                    }
+                    if (is_abuse_file) {
+                        counts.add(apiResponse.getAbuseFile());
+                        names.add(context.getString(R.string.abuse_file));
+                    }
+                    if (is_abuse_forum) {
+                        counts.add(apiResponse.getAbuseForum());
+                        names.add(context.getString(R.string.abuse_forum));
+                    }
+                    if (is_space) {
+                        counts.add(apiResponse.getSpace());
+                        names.add(context.getString(R.string.space));
+                    }
+                    if (is_visitors) {
+                        counts.add(apiResponse.getVisitors());
+                        names.add(context.getString(R.string.visitors));
+                    }
+                    counts.add(apiResponse.getTic());
+                    names.add(context.getString(R.string.tic));
 
-        AppController.getInstance(context).addToRequestQueue(stringRequest, 15000);
+                    // Обновляем LiveData
+                    countsLiveData.setValue(counts);
+                    namesLiveData.setValue(names);
+                    subtitleLiveData.setValue(context.getString(R.string.actually) + apiResponse.getDate());
+
+                    // Сохраняем в кэш
+                    saveToCache(names, counts, context.getString(R.string.actually) + apiResponse.getDate());
+                } else {
+                    Log.e(Config.TAG, "Response error: " + response.message());
+                    loadCachedData(context);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                Log.e(Config.TAG, "Network error", t);
+                loadCachedData(context);
+            }
+        });
     }
 
     private void saveToCache(List<String> names, List<String> counts, String subtitle) {

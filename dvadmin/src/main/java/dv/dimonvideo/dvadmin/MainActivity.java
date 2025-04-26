@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,10 +78,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     private static final String PREF_NAMES_KEY = "cached_names";
     private static final String PREF_COUNTS_KEY = "cached_counts";
     private static final String PREF_SUBTITLE_KEY = "cached_subtitle";
+    private static final int REQUEST_CODE_SETTINGS = 1001;
+    private ActivityResultLauncher<Intent> settingsLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final String is_dark = AppController.getInstance(this).isDark();
+
+        final String is_dark = AppController.getInstance(getApplicationContext()).isDark();
         if (Objects.equals(is_dark, "true"))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else if (Objects.equals(is_dark, "system"))
@@ -172,6 +177,18 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         scheduleWidgetUpdate();
         triggerImmediateWidgetUpdate();
+
+        // Инициализация ActivityResultLauncher
+        settingsLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        // Данные обновлены, вызов fetchData
+                        Log.w("---", "refresh");
+                        viewModel.fetchData(MainActivity.this);
+                    }
+                }
+        );
     }
 
     private void scheduleWidgetUpdate() {
@@ -253,8 +270,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(i);
+            Intent intent = new Intent(this, SettingsActivity.class);
+            settingsLauncher.launch(intent);
             return true;
         }
         if (id == R.id.action_refresh) {
@@ -459,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             return false;
         }
         Intent intent;
-        if (AppController.getInstance(this).is_client() && actionAdmin != null) {
+        if (AppController.getInstance(getApplicationContext()).is_client() && actionAdmin != null) {
             intent = new Intent("com.dimonvideo.client.dvadmin");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.putExtra("action_admin", actionAdmin);
@@ -529,4 +546,5 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             }
         });
     }
+
 }
