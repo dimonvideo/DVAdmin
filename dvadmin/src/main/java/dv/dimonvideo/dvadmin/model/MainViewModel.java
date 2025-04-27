@@ -38,6 +38,11 @@ public class MainViewModel extends ViewModel {
     private static final String PREF_NAMES_KEY = "cached_names";
     private static final String PREF_COUNTS_KEY = "cached_counts";
     private static final String PREF_SUBTITLE_KEY = "cached_subtitle";
+    private final MutableLiveData<Boolean> loadingState = new MutableLiveData<>();
+
+    public LiveData<Boolean> getLoadingState() {
+        return loadingState;
+    }
 
     public MainViewModel() {
         combinedData.addSource(namesLiveData, names ->
@@ -57,6 +62,9 @@ public class MainViewModel extends ViewModel {
         apiService.getCounts().enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+
+                loadingState.setValue(false); // Скрываем прогресс-бар после завершения загрузки
+
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse apiResponse = response.body();
                     List<String> counts = new ArrayList<>();
@@ -142,6 +150,7 @@ public class MainViewModel extends ViewModel {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                loadingState.setValue(false); // Скрываем прогресс-бар при ошибке
                 Log.e(Config.TAG, "Network error", t);
                 loadCachedData(context);
             }

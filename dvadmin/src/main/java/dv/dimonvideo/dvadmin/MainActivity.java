@@ -173,6 +173,18 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         setupRecyclerView();
+
+        // Наблюдаем за состоянием загрузки
+        viewModel.getLoadingState().observe(this, isLoading -> {
+            if (isLoading) {
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.rv.setVisibility(View.GONE); // Скрываем RecyclerView во время загрузки
+            } else {
+                binding.progressBar.setVisibility(View.GONE);
+                binding.rv.setVisibility(View.VISIBLE); // Показываем RecyclerView после загрузки
+            }
+        });
+
         viewModel.fetchData(this);
 
         scheduleWidgetUpdate();
@@ -192,6 +204,15 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     }
 
     private void scheduleWidgetUpdate() {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        ComponentName widgetComponent = new ComponentName(this, WidgetProvider.class);
+        int[] widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent);
+
+        if (widgetIds.length == 0) {
+            Log.d(Config.TAG, "No widgets found, skipping periodic updates");
+            return;
+        }
+
         PeriodicWorkRequest updateRequest = new PeriodicWorkRequest.Builder(
                 WidgetUpdateWorker.class, 15, TimeUnit.MINUTES)
                 .addTag(WidgetUpdateWorker.TAG)
@@ -214,11 +235,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         }
 
         for (int appWidgetId : widgetIds) {
-            Intent intent = new Intent(this, WidgetProvider.class);
-            intent.setAction(WidgetProvider.ACTION_UPDATE);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            sendBroadcast(intent);
-
             Data data = new Data.Builder()
                     .putInt(WidgetUpdateWorker.KEY_WIDGET_ID, appWidgetId)
                     .build();
@@ -496,10 +512,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Удаляем все callback из Handler
         backPressHandler.removeCallbacksAndMessages(null);
+
+        // Завершаем ExecutorService
+        executorService.shutdownNow();
         if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
-        executorService.shutdown(); // Завершаем ExecutorService
-        binding = null; // Очищаем binding
+        binding = null;
     }
 
     @Override

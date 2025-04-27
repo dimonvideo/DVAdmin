@@ -33,14 +33,11 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager widgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
-            Bundle options = widgetManager.getAppWidgetOptions(appWidgetId);
-         //   int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-            int showDate = 1;
-            updateAppWidget(context, appWidgetId, showDate, true); // Показываем ProgressBar при инициализации
+            updateAppWidget(context, appWidgetId, true); // Показываем ProgressBar при инициализации
         }
     }
 
-    public void updateAppWidget(Context context, int appWidgetId, int showDate, boolean showProgress) {
+    public void updateAppWidget(Context context, int appWidgetId, boolean showProgress) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         String isWidget = AppController.getInstance(context).isWidget();
         String text = context.getString(R.string.visitors_widget);
@@ -80,7 +77,7 @@ public class WidgetProvider extends AppWidgetProvider {
         views.setTextViewText(R.id.text, text);
         views.setTextViewText(R.id.widget_list, res);
         views.setTextViewText(R.id.date, date);
-        views.setViewVisibility(R.id.date, showDate == 1 ? View.VISIBLE : View.GONE);
+        views.setViewVisibility(R.id.date, View.VISIBLE);
         views.setViewVisibility(R.id.progress_bar, showProgress && res.isEmpty() ? View.VISIBLE : View.GONE);
         views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context, appWidgetId));
 
@@ -117,7 +114,7 @@ public class WidgetProvider extends AppWidgetProvider {
                 Bundle options = AppWidgetManager.getInstance(context).getAppWidgetOptions(appWidgetId);
                // int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
                 int showDate = 1;
-                updateAppWidget(context, appWidgetId, showDate, true);
+                updateAppWidget(context, appWidgetId, true);
             } else {
                 // Обновляем все виджеты
                 AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -131,8 +128,7 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         int width = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        int newShowDate = 1;
-        updateAppWidget(context, appWidgetId, newShowDate, false); // Не показываем ProgressBar при изменении размера
+        updateAppWidget(context, appWidgetId, false); // Не показываем ProgressBar при изменении размера
         Log.i(Config.TAG, "Widget Resized: " + width);
     }
 
