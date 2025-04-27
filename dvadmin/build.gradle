@@ -25,7 +25,7 @@ android {
         versionCode 523
         versionName "6.4"
         multiDexEnabled true
-        setProperty("archivesBaseName", applicationId + "-v" + versionCode)
+        setProperty("archivesBaseName", applicationId + "-v" + versionName)
 
     }
     buildFeatures {
