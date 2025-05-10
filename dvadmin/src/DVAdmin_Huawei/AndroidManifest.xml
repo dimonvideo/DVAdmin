@@ -23,6 +23,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup"
+        tools:replace="android:allowBackup"
         tools:targetApi="tiramisu">
         <activity
             android:name=".SettingsActivity"
