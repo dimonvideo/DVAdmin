@@ -22,8 +22,8 @@ android {
         applicationId "dv.dimonvideo.dvadmin"
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 524
-        versionName "6.4"
+        versionCode 525
+        versionName "6.5"
         multiDexEnabled true
         setProperty("archivesBaseName", applicationId + "-v" + versionName)
 
@@ -140,8 +140,6 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.11.0' // Для работы с JSON
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.preference:preference:1.2.1'
@@ -149,8 +147,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:24.1.1'
     implementation 'androidx.work:work-runtime:2.10.1'
     implementation "androidx.work:work-runtime:2.10.1"
-    implementation "com.google.guava:guava:33.3.1-android"
-
+    implementation 'com.google.guava:guava:33.4.8-android'
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
     // Google
     DVAdmin_GoogleImplementation('com.google.gms:google-services:4.4.2')
     DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))

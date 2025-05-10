@@ -1,11 +1,20 @@
+/**
+ * Основная активность приложения DVAdmin, предоставляющая интерфейс для модераторов сайта
+ * dimonvideo.ru. Отображает состояние сайта и количество пользовательских материалов,
+ * ожидающих проверки. Активность интегрируется с приложением DVClient для передачи ссылок
+ * на дальнейшую обработку и поддерживает виджеты для быстрого доступа к данным модерации.
+ */
 package dv.dimonvideo.dvadmin;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
@@ -24,7 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -34,7 +43,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -65,38 +73,82 @@ import dv.dimonvideo.dvadmin.util.RequestPermissionHandler;
 import dv.dimonvideo.dvadmin.util.WidgetProvider;
 import dv.dimonvideo.dvadmin.util.WidgetUpdateWorker;
 
+/**
+ * Реализует интерфейс {@link Adapter.ItemClickListener} для обработки нажатий на категории
+ * модерации, позволяя модераторам переходить к журналам или передавать ссылки в приложение
+ * DVClient.
+ */
 public class MainActivity extends AppCompatActivity implements Adapter.ItemClickListener {
+    /** Адаптер для отображения категорий модерации и их количества в RecyclerView. */
     private Adapter adapter;
+
+    /** Обработчик для запроса разрешений на уведомления на Android 13 и выше. */
     private RequestPermissionHandler mRequestPermissionHandler;
+
+    /** Флаг для отслеживания двойного нажатия кнопки "Назад" для выхода из приложения. */
     private boolean doubleBackToExitPressedOnce = false;
-    private LayoutBinding binding; // Убрано static
+
+    /** Привязка к макету активности. */
+    private LayoutBinding binding;
+
+    /** RecyclerView для отображения категорий модерации и их количества. */
     private RecyclerView recyclerView;
+
+    /** Панель инструментов активности, отображающая заголовок и подзаголовок приложения. */
     private Toolbar toolbar;
+
+    /** ViewModel для управления данными модерации и взаимодействия с API. */
     private MainViewModel viewModel;
+
+    /** Обработчик для выполнения отложенных задач, таких как сброс флага двойного нажатия. */
     private final Handler backPressHandler = new Handler(Looper.getMainLooper());
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(); // Для асинхронных задач
-    private static final String PREF_NAMES_KEY = "cached_names";
-    private static final String PREF_COUNTS_KEY = "cached_counts";
-    private static final String PREF_SUBTITLE_KEY = "cached_subtitle";
-    private static final int REQUEST_CODE_SETTINGS = 1001;
+
+    /** Сервис для выполнения фоновых задач, таких как установка динамических ярлыков. */
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    /** Ключ для кэширования названий категорий модерации из {@link Config#PREF_NAMES_KEY}. */
+    private static final String PREF_NAMES_KEY = Config.PREF_NAMES_KEY;
+
+    /** Ключ для кэширования количества материалов из {@link Config#PREF_COUNTS_KEY}. */
+    private static final String PREF_COUNTS_KEY = Config.PREF_COUNTS_KEY;
+
+    /** Ключ для кэширования подзаголовка из {@link Config#PREF_SUBTITLE_KEY}. */
+    private static final String PREF_SUBTITLE_KEY = Config.PREF_SUBTITLE_KEY;
+
+    /** Лаунчер для запуска активности настроек и обработки её результата. */
     private ActivityResultLauncher<Intent> settingsLauncher;
 
+    /** Экземпляр синглтона {@link AppController} для доступа к глобальным настройкам приложения. */
+    private AppController controller;
+
+    /** Приёмник широковещательных сообщений для обработки событий, связанных с виджетами. */
+    private final BroadcastReceiver widgetReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AppWidgetManager.ACTION_APPWIDGET_ENABLED.equals(intent.getAction()) ||
+                    AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
+                triggerImmediateWidgetUpdate();
+            }
+        }
+    };
+
+    /**
+     * Инициализирует активность, настраивая интерфейс, ViewModel и обновления виджетов.
+     * Регистрирует {@link BroadcastReceiver} для событий виджетов и запрашивает необходимые
+     * разрешения.
+     *
+     * @param savedInstanceState Сохранённое состояние активности или null, если запуск новый.
+     */
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        final String is_dark = AppController.getInstance(getApplicationContext()).isDark();
-        if (Objects.equals(is_dark, "true"))
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        else if (Objects.equals(is_dark, "system"))
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-
+        controller = AppController.getInstance();
         super.onCreate(savedInstanceState);
 
         try {
             Analytics.init(this);
         } catch (Exception e) {
-            Log.e(Config.TAG, "Failed to initialize Analytics", e);
+            Log.e(Config.TAG, "Ошибка инициализации аналитики", e);
         }
 
         binding = LayoutBinding.inflate(getLayoutInflater());
@@ -118,8 +170,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             swipeRefreshLayout.setRefreshing(false);
         });
 
-
-        // shortcuts
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
             try {
@@ -135,17 +185,16 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                         .setIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(Config.ADMIN_URL)))
                         .build();
 
-                // Выполняем setDynamicShortcuts в рабочем потоке
                 executorService.execute(() -> {
                     try {
                         shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut));
-                        Log.d(Config.TAG, "Dynamic shortcuts set successfully");
+                        Log.d(Config.TAG, "Динамические ярлыки успешно установлены");
                     } catch (Exception e) {
-                        Log.e(Config.TAG, "Failed to set dynamic shortcuts", e);
+                        Log.e(Config.TAG, "Ошибка установки динамических ярлыков", e);
                     }
                 });
             } catch (Exception e) {
-                Log.e(Config.TAG, "Failed to prepare dynamic shortcuts", e);
+                Log.e(Config.TAG, "Ошибка подготовки динамических ярлыков", e);
             }
         }
 
@@ -154,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             handlePerm();
         }
 
-        // onBackPressed
         OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -174,14 +222,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         setupRecyclerView();
 
-        // Наблюдаем за состоянием загрузки
         viewModel.getLoadingState().observe(this, isLoading -> {
             if (isLoading) {
                 binding.progressBar.setVisibility(View.VISIBLE);
-                binding.rv.setVisibility(View.GONE); // Скрываем RecyclerView во время загрузки
+                binding.rv.setVisibility(View.GONE);
             } else {
                 binding.progressBar.setVisibility(View.GONE);
-                binding.rv.setVisibility(View.VISIBLE); // Показываем RecyclerView после загрузки
+                binding.rv.setVisibility(View.VISIBLE);
             }
         });
 
@@ -190,26 +237,36 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         scheduleWidgetUpdate();
         triggerImmediateWidgetUpdate();
 
-        // Инициализация ActivityResultLauncher
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(AppWidgetManager.ACTION_APPWIDGET_ENABLED);
+        filter.addAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            registerReceiver(widgetReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(widgetReceiver, filter);
+        }
+
         settingsLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        // Данные обновлены, вызов fetchData
-                        Log.w("---", "refresh");
+                        Log.w("---", "Обновление данных");
                         viewModel.fetchData(MainActivity.this);
                     }
                 }
         );
     }
-
+    /**
+     * Планирует периодические обновления виджетов с помощью {@link WorkManager} каждые 15 минут
+     * для обновления данных модерации.
+     */
     private void scheduleWidgetUpdate() {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         ComponentName widgetComponent = new ComponentName(this, WidgetProvider.class);
         int[] widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent);
 
         if (widgetIds.length == 0) {
-            Log.d(Config.TAG, "No widgets found, skipping periodic updates");
+            Log.d(Config.TAG, "Виджеты не найдены, периодические обновления пропущены");
             return;
         }
 
@@ -224,13 +281,17 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                 updateRequest);
     }
 
+    /**
+     * Запускает немедленное обновление всех активных виджетов с помощью {@link WorkManager} для
+     * получения последних данных модерации.
+     */
     private void triggerImmediateWidgetUpdate() {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         ComponentName widgetComponent = new ComponentName(this, WidgetProvider.class);
         int[] widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent);
 
         if (widgetIds.length == 0) {
-            Log.d(Config.TAG, "No widgets found to update");
+            Log.d(Config.TAG, "Виджеты для обновления не найдены");
             return;
         }
 
@@ -246,6 +307,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         }
     }
 
+    /**
+     * Настраивает {@link RecyclerView} для отображения категорий модерации и их количества,
+     * отслеживая изменения данных из {@link MainViewModel}.
+     */
     private void setupRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -275,12 +340,26 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         });
     }
 
+    /**
+     * Создаёт меню опций для активности, предоставляя модераторам действия, такие как
+     * обновление данных или просмотр дополнительных отчётов.
+     *
+     * @param menu Меню для заполнения.
+     * @return True, если меню успешно создано.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_scrolling, menu);
         return true;
     }
 
+    /**
+     * Обрабатывает выбор пунктов меню, позволяя модераторам выполнять действия, такие как
+     * обновление данных, просмотр дней рождений, банов или отправка обратной связи.
+     *
+     * @param item Выбранный пункт меню.
+     * @return True, если пункт обработан, иначе false.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -300,126 +379,55 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             viewModel.fetchData(MainActivity.this);
             return true;
         }
+
         if (id == R.id.action_bd) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle(getString(R.string.action_bd));
-            WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=9");
-            wv.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
-                }
+            viewModel.fetchBirthdays();
+            viewModel.getBirthdays().observe(this, html -> {
+                showWebViewDialog(getString(R.string.action_bd), html);
             });
-            alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id12) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
-            alert.show();
             return true;
         }
+
         if (id == R.id.action_whoaddedfiles) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle(getString(R.string.action_whoaddedfiles));
-            WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=12");
-            wv.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
-                }
+            viewModel.fetchWhoAddedFiles();
+            viewModel.getWhoAddedFiles().observe(this, html -> {
+                showWebViewDialog(getString(R.string.action_whoaddedfiles), html);
             });
-            alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id13) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
-            alert.show();
             return true;
         }
+
         if (id == R.id.action_lastban) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle(getString(R.string.action_lastbans));
-            WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=14");
-            wv.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
-                }
+            viewModel.fetchLastBans();
+            viewModel.getLastBans().observe(this, html -> {
+                showWebViewDialog(getString(R.string.action_lastbans), html);
             });
-            alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id14) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
-            alert.show();
             return true;
         }
+
         if (id == R.id.action_lastdel) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle(getString(R.string.action_lastdel));
-            WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=15");
-            wv.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
-                }
+            viewModel.fetchLastDeleted();
+            viewModel.getLastDeleted().observe(this, html -> {
+                showWebViewDialog(getString(R.string.action_lastdel), html);
             });
-            alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id15) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
-            alert.show();
             return true;
         }
+
         if (id == R.id.action_lasttopics) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle(getString(R.string.action_lasttopics));
-            WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=11");
-            wv.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
-                }
+            viewModel.fetchLastTopics();
+            viewModel.getLastTopics().observe(this, html -> {
+                showWebViewDialog(getString(R.string.action_lasttopics), html);
             });
-            alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id16) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
-            alert.show();
             return true;
         }
+
         if (id == R.id.action_lastcom) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle(getString(R.string.action_lastcom));
-            WebView wv = new WebView(this);
-            wv.loadUrl(Config.HOST_URL + "/dvadminapi.php?op=13");
-            wv.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
-                }
+            viewModel.fetchLastComments();
+            viewModel.getLastComments().observe(this, html -> {
+                showWebViewDialog(getString(R.string.action_lastcom), html);
             });
-            alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, id1) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
-            alert.show();
             return true;
         }
+
         if (id == R.id.action_others) {
             String url = "https://play.google.com/store/apps/dev?id=6091758746633814135";
             if (!BuildConfig.GOOGLE) url = Config.BASE_URL + "/android.html";
@@ -427,27 +435,71 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             try {
                 startActivity(browserIntent);
             } catch (Exception e) {
-                Log.e(Config.TAG, "Failed to open browser", e);
+                Log.e(Config.TAG, "Ошибка открытия браузера", e);
                 Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
             }
             return true;
         }
+
         if (id == R.id.action_feedback) {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.fromParts("mailto", getString(R.string.app_mail), null));
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " Feedback");
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " Обратная связь");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 startActivity(intent);
             } catch (Exception e) {
-                Log.e(Config.TAG, "Failed to open email client", e);
+                Log.e(Config.TAG, "Ошибка открытия почтового клиента", e);
                 Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
             }
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Отображает диалог с {@link WebView} для показа HTML-контента (например, дней рождений,
+     * банов) или {@link TextView} для сообщений об ошибках или отсутствии данных.
+     *
+     * @param title Заголовок диалога.
+     * @param html  HTML-контент для отображения, или null/пустой для состояний ошибки/отсутствия данных.
+     */
+    private void showWebViewDialog(String title, String html) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(title);
+
+        if (html == null) {
+            TextView textView = new TextView(this);
+            textView.setText(R.string.error_server);
+            textView.setPadding(16, 16, 16, 16);
+            alert.setView(textView);
+        } else if (html.isEmpty()) {
+            TextView textView = new TextView(this);
+            textView.setText(R.string.no_data);
+            textView.setPadding(16, 16, 16, 16);
+            alert.setView(textView);
+        } else {
+            WebView wv = new WebView(this);
+            wv.loadData(html, "text/html", "UTF-8");
+            alert.setView(wv);
+            alert.setNegativeButton(getString(R.string.action_close), (dialog, which) -> {
+                wv.destroy();
+                dialog.dismiss();
+            });
+        }
+
+        alert.setNegativeButton(getString(R.string.action_close), (dialog, which) -> dialog.dismiss());
+        alert.show();
+    }
+
+    /**
+     * Обрабатывает нажатия на категории модерации в {@link RecyclerView}, переходя к
+     * соответствующей странице журналов или передавая ссылку в приложение DVClient.
+     *
+     * @param view     Нажатый вид.
+     * @param position Позиция нажатого элемента в RecyclerView.
+     */
     @Override
     public void onItemClick(View view, int position) {
         String item = adapter.getItem(position);
@@ -485,14 +537,22 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         }
     }
 
+    /**
+     * Запускает активность для открытия URL журнала модерации или передаёт ссылку в приложение
+     * DVClient.
+     *
+     * @param url         URL журнала модерации, или null, если не применимо.
+     * @param actionAdmin Идентификатор действия для DVClient, или null, если не применимо.
+     * @return True, если активность успешно запущена, иначе false.
+     */
     private boolean startActivityForItem(String url, String actionAdmin) {
         if (url == null && actionAdmin == null) {
-            Log.e(Config.TAG, "Invalid URL and actionAdmin");
+            Log.e(Config.TAG, "Недопустимый URL и actionAdmin");
             Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
             return false;
         }
         Intent intent;
-        if (AppController.getInstance(getApplicationContext()).is_client() && actionAdmin != null) {
+        if (controller.is_client() && actionAdmin != null) {
             intent = new Intent("com.dimonvideo.client.dvadmin");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.putExtra("action_admin", actionAdmin);
@@ -503,41 +563,55 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             startActivity(intent);
             return true;
         } catch (Exception e) {
-            Log.e(Config.TAG, "Failed to start activity", e);
+            Log.e(Config.TAG, "Ошибка запуска активности", e);
             Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
             return false;
         }
     }
 
+    /**
+     * Очищает ресурсы и отменяет регистрацию приёмника виджетов при уничтожении активности.
+     */
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        // Удаляем все callback из Handler
+        unregisterReceiver(widgetReceiver);
         backPressHandler.removeCallbacksAndMessages(null);
-
-        // Завершаем ExecutorService
         executorService.shutdownNow();
         if (ProgressHelper.isDialogVisible()) ProgressHelper.dismissDialog();
+        recyclerView.setAdapter(null);
         binding = null;
+        super.onDestroy();
     }
 
+    /**
+     * Вызывается при возобновлении активности, обеспечивая актуальность интерфейса.
+     */
     @Override
     protected void onResume() {
         super.onResume();
     }
 
+    /**
+     * Вызывается при приостановке активности, сохраняя необходимое состояние.
+     */
     @Override
     protected void onPause() {
         super.onPause();
     }
 
+    /**
+     * Настраивает масштаб шрифта на основе пользовательских предпочтений, обеспечивая
+     * единообразие размера текста в приложении.
+     *
+     * @param configuration Текущая конфигурация для изменения.
+     */
     private void adjustFontScale(Configuration configuration) {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         configuration.fontScale = Float.parseFloat(Objects.requireNonNull(sharedPrefs.getString("dvc_scale", "1.0f")));
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (wm == null) {
-            Log.e(Config.TAG, "WindowManager is null");
+            Log.e(Config.TAG, "WindowManager не доступен");
             return;
         }
         wm.getDefaultDisplay().getMetrics(metrics);
@@ -545,6 +619,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
     }
 
+    /**
+     * Запрашивает разрешение на уведомления на Android 13 и выше, необходимое для обновления
+     * виджетов.
+     */
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void handlePerm() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -556,7 +634,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         }, 123, new RequestPermissionHandler.RequestPermissionListener() {
             @Override
             public void onSuccess() {
-                Log.d(Config.TAG, "Notification permission granted");
+                Log.d(Config.TAG, "Разрешение на уведомления получено");
             }
 
             @Override
@@ -565,5 +643,4 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
             }
         });
     }
-
 }
