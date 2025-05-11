@@ -22,6 +22,7 @@ import android.widget.RemoteViews;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.WorkManager;
 
 import org.json.JSONException;
@@ -45,6 +46,7 @@ public class WidgetProvider extends AppWidgetProvider {
                     .build();
             OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WidgetUpdateWorker.class)
                     .setInputData(data)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST) // Ускоряем выполнение
                     .addTag(WidgetUpdateWorker.TAG)
                     .build();
             WorkManager.getInstance(context).enqueue(updateRequest);
@@ -56,7 +58,7 @@ public class WidgetProvider extends AppWidgetProvider {
         String dataType = prefs.getString("widget_data_type_" + appWidgetId, "visitors");
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         String text = context.getString(R.string.visitors_widget);
-        String res = "";
+        String res = context.getString(R.string.loading); // Значение по умолчанию
         String date = "";
         int showDate = getShowDate(context, appWidgetId);
 
@@ -82,12 +84,11 @@ public class WidgetProvider extends AppWidgetProvider {
                     res = today.replace("->", " ");
                 }
             } catch (JSONException e) {
-                Log.e(Config.TAG, "Ошибка парсинга кэшированных данных в WidgetProvider", e);
                 res = context.getString(R.string.error_network);
             }
         }
 
-        updateWidgetViews(context, views, appWidgetId, text, res, date, showDate, showProgress && res.isEmpty());
+        updateWidgetViews(context, views, appWidgetId, text, res, date, showDate, showProgress && res.equals(context.getString(R.string.loading)));
         AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, views);
     }
 
@@ -106,12 +107,13 @@ public class WidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
         updateWidgetViews(context, views, appWidgetId, text, res, date, showDate, false);
         AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, views);
+        Log.d(Config.TAG, "Обновление через processResponse для виджета " + appWidgetId + ": text=" + text + ", res=" + res + ", date=" + date);
     }
 
     private void updateWidgetViews(Context context, RemoteViews views, int appWidgetId, String text, String res, String date, int showDate, boolean showProgress) {
         views.setTextViewText(R.id.text, text);
-        views.setTextViewText(R.id.widget_list, res);
-        views.setTextViewText(R.id.date, date);
+        views.setTextViewText(R.id.widget_list, res != null ? res : context.getString(R.string.error_network));
+        views.setTextViewText(R.id.date, date != null ? date : "");
         views.setViewVisibility(R.id.date, showDate == 1 ? View.VISIBLE : View.GONE);
         views.setViewVisibility(R.id.progress_bar, showProgress ? View.VISIBLE : View.GONE);
         views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context, appWidgetId));
@@ -138,6 +140,7 @@ public class WidgetProvider extends AppWidgetProvider {
                         .build();
                 OneTimeWorkRequest updateRequest = new OneTimeWorkRequest.Builder(WidgetUpdateWorker.class)
                         .setInputData(data)
+                        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                         .addTag(WidgetUpdateWorker.TAG)
                         .build();
                 WorkManager.getInstance(context).enqueue(updateRequest);
@@ -159,7 +162,6 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         updateAppWidget(context, appWidgetId, false);
-        Log.i(Config.TAG, "Виджет изменён: " + newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH));
     }
 
     @Override

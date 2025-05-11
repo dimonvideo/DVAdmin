@@ -8,9 +8,12 @@ package dv.dimonvideo.dvadmin.util;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
+
+import dv.dimonvideo.dvadmin.Config;
 
 /**
  * Наследует {@link Application} для инициализации приложения и управления глобальными настройками.
@@ -46,9 +49,11 @@ public class AppController extends Application {
         sharedPrefs.registerOnSharedPreferenceChangeListener((prefs, key) -> {
             if (KEY_THEME.equals(key)) {
                 applyTheme();
+                Log.d(Config.TAG, "Тема изменена через SharedPreferences: " + getThemeAdmin());
             }
         });
         applyTheme();
+        Log.d(Config.TAG, "Тема применена при запуске: " + getThemeAdmin());
     }
 
     /**

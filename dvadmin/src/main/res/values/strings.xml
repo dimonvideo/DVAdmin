@@ -54,4 +54,5 @@
     <string name="updating">Обновление...</string>
     <string name="no_data">Нет данных</string>
     <string name="cached_data_suffix">" (кэш)"</string>
+    <string name="loading">Загружаем</string>
 </resources>

@@ -6,70 +6,72 @@
     android:background="@drawable/widget_background"
     android:padding="4dp">
 
-    <ImageView
-        android:id="@+id/app_icon"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/app_name"
-        android:src="@mipmap/ic_launcher" />
+<ImageView
+android:id="@+id/app_icon"
+android:layout_width="16dp"
+android:layout_height="16dp"
+android:layout_alignParentStart="true"
+android:layout_alignParentTop="true"
+android:contentDescription="@string/app_name"
+android:src="@mipmap/ic_launcher" />
 
-    <ImageButton
-        android:id="@+id/refresh_button"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/refresh"
-        android:src="@android:drawable/stat_notify_sync" />
+<ImageButton
+android:id="@+id/refresh_button"
+style="?android:attr/borderlessButtonStyle"
+android:layout_width="16dp"
+android:layout_height="16dp"
+android:layout_alignParentEnd="true"
+android:layout_alignParentTop="true"
+android:contentDescription="@string/refresh"
+android:backgroundTint="@android:color/white"
+    android:src="@android:drawable/stat_notify_sync" />
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/app_icon"
-        android:layout_toStartOf="@id/refresh_button"
-        android:layout_below="@id/app_icon"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text="@string/visitors_widget"
-        android:textColor="@color/date"
-        android:textSize="10sp" />
+<TextView
+android:id="@+id/text"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_toEndOf="@id/app_icon"
+android:layout_toStartOf="@id/refresh_button"
+android:layout_below="@id/app_icon"
+android:ellipsize="end"
+android:maxLines="1"
+android:text="@string/visitors_widget"
+android:textColor="@android:color/white"
+    android:textSize="12sp" />
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_below="@id/text"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone" />
+<ProgressBar
+android:id="@+id/progress_bar"
+style="?android:attr/progressBarStyleSmall"
+android:layout_width="16dp"
+android:layout_height="16dp"
+android:layout_below="@id/text"
+android:layout_centerHorizontal="true"
+android:indeterminateTint="@android:color/white"
+    android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/widget_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text"
-        android:ellipsize="end"
-        android:gravity="center_horizontal"
-        android:maxLines="2"
-        android:padding="2dp"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+<TextView
+android:id="@+id/widget_list"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_below="@id/text"
+android:ellipsize="end"
+android:gravity="center_horizontal"
+android:maxLines="2"
+android:padding="2dp"
+android:textColor="@android:color/white"
+    android:textSize="14sp"
+    android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="@color/date"
-        android:textSize="8sp"
-        android:visibility="gone" />
+<TextView
+android:id="@+id/date"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_alignParentBottom="true"
+android:layout_alignParentEnd="true"
+android:ellipsize="end"
+android:maxLines="1"
+android:textColor="#B0BEC5"
+    android:textSize="10sp"
+    android:visibility="gone" />
 
-</RelativeLayout>
+    </RelativeLayout>

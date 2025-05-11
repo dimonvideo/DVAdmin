@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/Corners">
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
-        android:startColor="#5C000000"
-        android:endColor="#CC393838"/>
-
-    <padding android:left="4dp" android:top="1dp" android:right="4dp" android:bottom="1dp" />
-    <corners android:radius="4dp" />
+        android:startColor="#1C2526"
+    android:endColor="#0A0F0D"
+    android:angle="45" />
+    <corners android:radius="8dp" />
 </shape>

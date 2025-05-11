@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -78,6 +79,8 @@ public class SettingsActivity extends AppCompatActivity {
                 if (doubleBackToExitPressedOnce) {
                     // Устанавливаем результат и завершаем активность
                     Intent intent = new Intent();
+                    intent.putExtra("theme_changed", true); // Сигнал о смене темы
+                    intent.putExtra("font_scale_changed", true); // Сигнал о смене размера шрифта
                     setResult(RESULT_OK, intent);
                     finish();
                 } else {
@@ -87,6 +90,25 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    /**
+     * Обрабатывает нажатие на стрелку назад в тулбаре.
+     *
+     * @param item Выбранный пункт меню.
+     * @return True, если обработано, иначе false.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent();
+            intent.putExtra("theme_changed", true); // Сигнал о смене темы
+            intent.putExtra("font_scale_changed", true); // Сигнал о смене размера шрифта
+            setResult(RESULT_OK, intent);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -121,7 +143,6 @@ public class SettingsActivity extends AppCompatActivity {
                 requireActivity().recreate();
                 return true;
             });
-
         }
     }
 

@@ -7,6 +7,7 @@ package dv.dimonvideo.dvadmin.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,12 +123,19 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
          */
         @Override
         public void onClick(View view) {
+            Log.d("DVAdminApp", "Нажатие на элемент RecyclerView, позиция: " + getAdapterPosition());
             if (mClickListener != null) {
-                if (getAdapterPosition() == RecyclerView.NO_POSITION) return;
+                if (getAdapterPosition() == RecyclerView.NO_POSITION) {
+                    Log.w("DVAdminApp", "Позиция недействительна");
+                    return;
+                }
                 notifyItemChanged(selectedPos);
                 selectedPos = getAdapterPosition();
                 notifyItemChanged(selectedPos);
+                Log.d("DVAdminApp", "Вызываем onItemClick для позиции: " + selectedPos);
                 mClickListener.onItemClick(view, getAdapterPosition());
+            } else {
+                Log.w("DVAdminApp", "Слушатель нажатий (mClickListener) не установлен");
             }
         }
     }
@@ -149,6 +157,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
      */
     public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
+        Log.d("DVAdminApp", "Слушатель нажатий установлен");
     }
 
     /**

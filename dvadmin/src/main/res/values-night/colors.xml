@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#292929</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#5FA4E1</color>
+    <!-- Primary Colors -->
+    <color name="colorPrimary">#1A1A1A</color> <!-- Светлее для тёмной темы -->
+    <color name="colorPrimaryContainer">#2A2A2A</color> <!-- Чуть светлее -->
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnPrimaryContainer">#90CAF9</color>
 
-    <color name="colorList">#000000</color>
-    <color name="text">#FAF9F9</color>
-    <color name="value">#15C31C</color>
+    <!-- Secondary Colors -->
+    <color name="colorSecondary">#4CAF50</color>
+    <color name="colorSecondaryContainer">#2E7D32</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorOnSecondaryContainer">#A5D6A7</color>
+
+    <!-- Tertiary Colors -->
+    <color name="colorTertiary">#FF9800</color>
+    <color name="colorTertiaryContainer">#EF6C00</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+    <color name="colorOnTertiaryContainer">#FFCC80</color>
+
+    <!-- Surface Colors -->
+    <color name="colorSurface">#121212</color>
+    <color name="colorSurfaceVariant">#1F1F1F</color>
+    <color name="colorOnSurface">#E0E0E0</color>
+    <color name="colorOnSurfaceVariant">#B0B0B0</color>
+
+    <!-- Error Colors -->
+    <color name="colorError">#F44336</color>
+    <color name="colorErrorContainer">#B71C1C</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorOnErrorContainer">#FFCDD2</color>
+
+    <!-- Custom Colors -->
+    <color name="istok">#B0B0B0</color>
+    <color name="white">#FFFFFF</color>
 </resources>

@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +18,8 @@ import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+
+import com.google.android.material.button.MaterialButton;
 
 import dv.dimonvideo.dvadmin.util.WidgetUpdateWorker;
 
@@ -29,7 +30,6 @@ public class WidgetConfigActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Используем тему с тёмным фоном и светлым текстом, совместимую с приложением
         setContentView(R.layout.activity_widget_config);
 
         Intent intent = getIntent();
@@ -52,12 +52,10 @@ public class WidgetConfigActivity extends AppCompatActivity {
                 R.array.widget_list,
                 android.R.layout.simple_spinner_item
         );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
         dataTypeSpinner.setAdapter(adapter);
-        for (int i = 0; i < adapter.getCount(); i++) {
-            Log.d(Config.TAG, "Spinner item: " + adapter.getItem(i));
-        }
-        Button saveButton = findViewById(R.id.save_button);
+
+        MaterialButton saveButton = findViewById(R.id.save_button);
         saveButton.setOnClickListener(v -> saveWidgetConfig());
     }
 
@@ -80,5 +78,11 @@ public class WidgetConfigActivity extends AppCompatActivity {
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         setResult(RESULT_OK, resultValue);
         finish();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }

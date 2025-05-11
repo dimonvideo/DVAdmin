@@ -5,13 +5,10 @@
  */
 package dv.dimonvideo.dvadmin.util;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -25,6 +22,7 @@ import com.google.gson.Gson;
 import java.util.Objects;
 
 import dv.dimonvideo.dvadmin.Config;
+import dv.dimonvideo.dvadmin.R;
 import dv.dimonvideo.dvadmin.model.ApiResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,12 +30,13 @@ import retrofit2.Response;
 
 /**
  * Наследует {@link Worker} для выполнения фоновых задач обновления виджетов с использованием
- * {@link .util.WorkManager}.
+ * {@link .WorkManager}.
  */
 public class WidgetUpdateWorker extends Worker {
     public static final String TAG = "WidgetUpdateWorker";
     public static final String KEY_WIDGET_ID = "widget_id";
     private final AppController controller;
+    private static final int MAX_RETRIES = 3;
 
     public WidgetUpdateWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -60,13 +59,14 @@ public class WidgetUpdateWorker extends Worker {
         }
 
         for (int appWidgetId : widgetIds) {
-            fetchDataAndUpdateWidget(context, appWidgetId);
+
+            fetchDataAndUpdateWidget(context, appWidgetId, 0);
         }
 
         return Result.success();
     }
 
-    private void fetchDataAndUpdateWidget(Context context, int appWidgetId) {
+    private void fetchDataAndUpdateWidget(Context context, int appWidgetId, int retryCount) {
         ApiService apiService = controller.getApiService();
 
         apiService.getCounts().enqueue(new Callback<ApiResponse>() {
@@ -83,19 +83,25 @@ public class WidgetUpdateWorker extends Worker {
 
                     updateWidgetFromCache(context, appWidgetId, apiResponse.getTic(), apiResponse.getVisitors(), apiResponse.getToday(), apiResponse.getDate());
                 } else {
-                    Log.e(Config.TAG, "Ошибка ответа сервера: " + response.message());
-                    WidgetProvider widgetProvider = new WidgetProvider();
-                    widgetProvider.updateAppWidget(context, appWidgetId, false);
+                    Log.e(Config.TAG, "Ошибка ответа сервера для виджета " + appWidgetId + ": " + response.message());
+                    retryOrFail(context, appWidgetId, retryCount);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
-                Log.e(Config.TAG, "Сетевая ошибка", t);
-                WidgetProvider widgetProvider = new WidgetProvider();
-                widgetProvider.updateAppWidget(context, appWidgetId, false);
+                retryOrFail(context, appWidgetId, retryCount);
             }
         });
+    }
+
+    private void retryOrFail(Context context, int appWidgetId, int retryCount) {
+        if (retryCount < MAX_RETRIES) {
+            fetchDataAndUpdateWidget(context, appWidgetId, retryCount + 1);
+        } else {
+            WidgetProvider widgetProvider = new WidgetProvider();
+            widgetProvider.updateAppWidget(context, appWidgetId, false);
+        }
     }
 
     private void updateWidgetFromCache(Context context, int appWidgetId, String countTic, String countVisitors, String today, String countDate) {
@@ -109,6 +115,10 @@ public class WidgetUpdateWorker extends Worker {
             res = today.replace("->", " ");
         }
 
+        if (res == null || res.isEmpty()) {
+            res = context.getString(R.string.error_network);
+        }
+
         WidgetProvider widgetProvider = new WidgetProvider();
         widgetProvider.processResponse(context, res, countDate, appWidgetId, getShowDate(context, appWidgetId));
     }
@@ -120,13 +130,4 @@ public class WidgetUpdateWorker extends Worker {
         return width > 100 ? 1 : 0;
     }
 
-    private PendingIntent getPendingSelfIntent(Context context, int appWidgetId) {
-        Intent intent = new Intent(context, WidgetProvider.class);
-        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
-                : PendingIntent.FLAG_UPDATE_CURRENT;
-        return PendingIntent.getBroadcast(context, appWidgetId, intent, flags);
-    }
 }

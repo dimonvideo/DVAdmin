@@ -165,10 +165,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         notificationManager.cancelAll();
 
         SwipeRefreshLayout swipeRefreshLayout = binding.swipeLayout;
+        // Временно отключаем для теста
+        /*
         swipeRefreshLayout.setOnRefreshListener(() -> {
             viewModel.fetchData(MainActivity.this);
             swipeRefreshLayout.setRefreshing(false);
         });
+        */
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
@@ -188,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                 executorService.execute(() -> {
                     try {
                         shortcutManager.setDynamicShortcuts(Arrays.asList(logUploaderShortcut, logShortcut));
-                        Log.d(Config.TAG, "Динамические ярлыки успешно установлены");
                     } catch (Exception e) {
                         Log.e(Config.TAG, "Ошибка установки динамических ярлыков", e);
                     }
@@ -223,12 +225,14 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         setupRecyclerView();
 
         viewModel.getLoadingState().observe(this, isLoading -> {
+            Log.d("DVAdminApp", "Состояние загрузки: " + isLoading);
             if (isLoading) {
                 binding.progressBar.setVisibility(View.VISIBLE);
                 binding.rv.setVisibility(View.GONE);
             } else {
                 binding.progressBar.setVisibility(View.GONE);
                 binding.rv.setVisibility(View.VISIBLE);
+                Log.d("DVAdminApp", "RecyclerView виден: " + (binding.rv.getVisibility() == View.VISIBLE));
             }
         });
 
@@ -250,12 +254,20 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            if (data.getBooleanExtra("theme_changed", false) || data.getBooleanExtra("font_scale_changed", false)) {
+                                // Пересоздаём активность для применения новой темы или размера шрифта
+                                recreate();
+                            }
+                        }
                         Log.w("---", "Обновление данных");
                         viewModel.fetchData(MainActivity.this);
                     }
                 }
         );
     }
+
     /**
      * Планирует периодические обновления виджетов с помощью {@link WorkManager} каждые 15 минут
      * для обновления данных модерации.
@@ -266,12 +278,11 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         int[] widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent);
 
         if (widgetIds.length == 0) {
-            Log.d(Config.TAG, "Виджеты не найдены, периодические обновления пропущены");
             return;
         }
 
         PeriodicWorkRequest updateRequest = new PeriodicWorkRequest.Builder(
-                WidgetUpdateWorker.class, 15, TimeUnit.MINUTES)
+                WidgetUpdateWorker.class, 30, TimeUnit.MINUTES)
                 .addTag(WidgetUpdateWorker.TAG)
                 .build();
 
@@ -320,16 +331,23 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         viewModel.getCombinedData().observe(this, pair -> {
             if (pair != null && pair.first != null && pair.second != null) {
+                Log.d("DVAdminApp", "Данные получены: названия=" + pair.first + ", количества=" + pair.second);
                 if (pair.first.isEmpty() && pair.second.isEmpty()) {
+                    Log.d("DVAdminApp", "Данные пусты, скрываем RecyclerView");
                     recyclerView.setVisibility(View.GONE);
                     binding.emptyView.setVisibility(View.VISIBLE);
+                    adapter = null; // Очищаем адаптер
+                    recyclerView.setAdapter(null);
                 } else {
+                    Log.d("DVAdminApp", "Данные есть, показываем RecyclerView");
                     recyclerView.setVisibility(View.VISIBLE);
                     binding.emptyView.setVisibility(View.GONE);
                     adapter = new Adapter(this, pair.first, pair.second);
-                    adapter.setClickListener(MainActivity.this);
+                    adapter.setClickListener(MainActivity.this); // Устанавливаем слушатель каждый раз
                     recyclerView.setAdapter(adapter);
                 }
+            } else {
+                Log.w("DVAdminApp", "Данные из ViewModel null");
             }
         });
 
@@ -502,7 +520,9 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
      */
     @Override
     public void onItemClick(View view, int position) {
+        Log.d("DVAdminApp", "onItemClick вызван для позиции: " + position);
         String item = adapter.getItem(position);
+        Log.d("DVAdminApp", "Выбранный элемент: " + item);
         String url = null;
         String actionAdmin = null;
 
