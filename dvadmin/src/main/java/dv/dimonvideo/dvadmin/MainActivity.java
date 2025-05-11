@@ -164,15 +164,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
 
-        SwipeRefreshLayout swipeRefreshLayout = binding.swipeLayout;
-        // Временно отключаем для теста
-        /*
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            viewModel.fetchData(MainActivity.this);
-            swipeRefreshLayout.setRefreshing(false);
-        });
-        */
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
             try {
@@ -266,6 +257,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
                     }
                 }
         );
+        SwipeRefreshLayout swipeRefreshLayout = binding.swipeLayout;
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            recreate();
+            swipeRefreshLayout.setRefreshing(false);
+
+        });
     }
 
     /**

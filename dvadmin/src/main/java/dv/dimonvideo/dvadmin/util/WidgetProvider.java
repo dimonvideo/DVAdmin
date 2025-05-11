@@ -114,7 +114,7 @@ public class WidgetProvider extends AppWidgetProvider {
         views.setTextViewText(R.id.text, text);
         views.setTextViewText(R.id.widget_list, res != null ? res : context.getString(R.string.error_network));
         views.setTextViewText(R.id.date, date != null ? date : "");
-        views.setViewVisibility(R.id.date, showDate == 1 ? View.VISIBLE : View.GONE);
+        views.setViewVisibility(R.id.date, View.VISIBLE);
         views.setViewVisibility(R.id.progress_bar, showProgress ? View.VISIBLE : View.GONE);
         views.setOnClickPendingIntent(R.id.refresh_button, getPendingSelfIntent(context, appWidgetId));
 
