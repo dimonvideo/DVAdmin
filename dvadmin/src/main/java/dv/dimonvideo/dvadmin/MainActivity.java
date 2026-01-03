@@ -232,6 +232,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         scheduleWidgetUpdate();
         triggerImmediateWidgetUpdate();
 
+        setupDialogObservers();
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(AppWidgetManager.ACTION_APPWIDGET_ENABLED);
         filter.addAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -397,49 +399,31 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
 
         if (id == R.id.action_bd) {
             viewModel.fetchBirthdays();
-            viewModel.getBirthdays().observe(this, html -> {
-                showWebViewDialog(getString(R.string.action_bd), html);
-            });
             return true;
         }
 
         if (id == R.id.action_whoaddedfiles) {
             viewModel.fetchWhoAddedFiles();
-            viewModel.getWhoAddedFiles().observe(this, html -> {
-                showWebViewDialog(getString(R.string.action_whoaddedfiles), html);
-            });
             return true;
         }
 
         if (id == R.id.action_lastban) {
             viewModel.fetchLastBans();
-            viewModel.getLastBans().observe(this, html -> {
-                showWebViewDialog(getString(R.string.action_lastbans), html);
-            });
             return true;
         }
 
         if (id == R.id.action_lastdel) {
             viewModel.fetchLastDeleted();
-            viewModel.getLastDeleted().observe(this, html -> {
-                showWebViewDialog(getString(R.string.action_lastdel), html);
-            });
             return true;
         }
 
         if (id == R.id.action_lasttopics) {
             viewModel.fetchLastTopics();
-            viewModel.getLastTopics().observe(this, html -> {
-                showWebViewDialog(getString(R.string.action_lasttopics), html);
-            });
             return true;
         }
 
         if (id == R.id.action_lastcom) {
             viewModel.fetchLastComments();
-            viewModel.getLastComments().observe(this, html -> {
-                showWebViewDialog(getString(R.string.action_lastcom), html);
-            });
             return true;
         }
 
@@ -484,28 +468,41 @@ public class MainActivity extends AppCompatActivity implements Adapter.ItemClick
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(title);
 
+        AlertDialog dialog;
+
         if (html == null) {
             TextView textView = new TextView(this);
             textView.setText(R.string.error_server);
             textView.setPadding(16, 16, 16, 16);
             alert.setView(textView);
+            alert.setNegativeButton(getString(R.string.action_close), (dialogInterface, which) -> dialogInterface.dismiss());
+            dialog = alert.create();
         } else if (html.isEmpty()) {
             TextView textView = new TextView(this);
             textView.setText(R.string.no_data);
             textView.setPadding(16, 16, 16, 16);
             alert.setView(textView);
+            alert.setNegativeButton(getString(R.string.action_close), (dialogInterface, which) -> dialogInterface.dismiss());
+            dialog = alert.create();
         } else {
             WebView wv = new WebView(this);
             wv.loadData(html, "text/html", "UTF-8");
             alert.setView(wv);
-            alert.setNegativeButton(getString(R.string.action_close), (dialog, which) -> {
-                wv.destroy();
-                dialog.dismiss();
-            });
+            alert.setNegativeButton(getString(R.string.action_close), (dialogInterface, which) -> dialogInterface.dismiss());
+            dialog = alert.create();
+            dialog.setOnDismissListener(dialogInterface -> wv.destroy());
         }
 
-        alert.setNegativeButton(getString(R.string.action_close), (dialog, which) -> dialog.dismiss());
-        alert.show();
+        dialog.show();
+    }
+
+    private void setupDialogObservers() {
+        viewModel.getBirthdays().observe(this, html -> showWebViewDialog(getString(R.string.action_bd), html));
+        viewModel.getWhoAddedFiles().observe(this, html -> showWebViewDialog(getString(R.string.action_whoaddedfiles), html));
+        viewModel.getLastBans().observe(this, html -> showWebViewDialog(getString(R.string.action_lastbans), html));
+        viewModel.getLastDeleted().observe(this, html -> showWebViewDialog(getString(R.string.action_lastdel), html));
+        viewModel.getLastTopics().observe(this, html -> showWebViewDialog(getString(R.string.action_lasttopics), html));
+        viewModel.getLastComments().observe(this, html -> showWebViewDialog(getString(R.string.action_lastcom), html));
     }
 
     /**
