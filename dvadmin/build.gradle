@@ -22,8 +22,8 @@ android {
         applicationId "dv.dimonvideo.dvadmin"
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 527
-        versionName "6.5"
+        versionCode 528
+        versionName "6.6"
         multiDexEnabled true
         setProperty("archivesBaseName", applicationId + "-v" + versionName)
 
@@ -38,7 +38,7 @@ android {
             signingConfig signingConfigs.release
         }
     }
-    compileSdkVersion = 35
+    compileSdkVersion = 36
     android.buildFeatures.buildConfig true
     flavorDimensions = ["dimonvideo"]
 
@@ -138,40 +138,40 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.firebase:firebase-messaging:24.1.1'
-    implementation 'androidx.work:work-runtime:2.10.1'
-    implementation "androidx.work:work-runtime:2.10.1"
-    implementation 'com.google.guava:guava:33.4.8-android'
-    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
-    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    implementation 'com.google.firebase:firebase-messaging:25.0.1'
+    implementation 'androidx.work:work-runtime:2.11.0'
+    implementation "androidx.work:work-runtime:2.11.0"
+    implementation 'com.google.guava:guava:33.5.0-android'
+    implementation 'com.squareup.retrofit2:retrofit:3.0.0'
+    implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:3.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
     // Google
-    DVAdmin_GoogleImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
-    DVAdmin_GoogleImplementation('com.google.firebase:firebase-messaging:24.1.1')
+    DVAdmin_GoogleImplementation('com.google.gms:google-services:4.4.4')
+    DVAdmin_GoogleImplementation(platform('com.google.firebase:firebase-bom:34.7.0'))
+    DVAdmin_GoogleImplementation('com.google.firebase:firebase-messaging:25.0.1')
 
     // RuStore
-    DVAdmin_RuStoreImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_RuStoreImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
-    DVAdmin_RuStoreImplementation('com.google.firebase:firebase-messaging:24.1.1')
+    DVAdmin_RuStoreImplementation('com.google.gms:google-services:4.4.4')
+    DVAdmin_RuStoreImplementation(platform('com.google.firebase:firebase-bom:34.7.0'))
+    DVAdmin_RuStoreImplementation('com.google.firebase:firebase-messaging:25.0.1')
 
     // NashStore
-    DVAdmin_NashStoreImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
-    DVAdmin_NashStoreImplementation('com.google.firebase:firebase-messaging:24.1.1')
+    DVAdmin_NashStoreImplementation('com.google.gms:google-services:4.4.4')
+    DVAdmin_NashStoreImplementation(platform('com.google.firebase:firebase-bom:34.7.0'))
+    DVAdmin_NashStoreImplementation('com.google.firebase:firebase-messaging:25.0.1')
 
     // Samsung
-    DVAdmin_SamsungImplementation('com.google.gms:google-services:4.4.2')
-    DVAdmin_SamsungImplementation(platform('com.google.firebase:firebase-bom:33.13.0'))
-    DVAdmin_SamsungImplementation('com.google.firebase:firebase-messaging:24.1.1')
+    DVAdmin_SamsungImplementation('com.google.gms:google-services:4.4.4')
+    DVAdmin_SamsungImplementation(platform('com.google.firebase:firebase-bom:34.7.0'))
+    DVAdmin_SamsungImplementation('com.google.firebase:firebase-messaging:25.0.1')
 
     // HUAWEI
     DVAdmin_HuaweiImplementation 'com.huawei.agconnect:agconnect-core:1.9.1.301'
